@@ -23,5 +23,22 @@ typedef struct {
 } Dataframe;
 
 // Alias para tipos FECHA: 'Fecha' alias de 'struct tm' (#include <time.h>)
+
 typedef struct tm Fecha;
 
+
+// Estructura para representar un nodo de la lista
+typedef struct NodoLista{
+    Dataframe *df;                // Puntero a un dataframe
+    struct NodoLista *siguiente;  // Puntero al siguiente nodo de la lista
+} Nodo;
+
+// Estructura para representar la lista de Dataframe’s
+typedef struct {
+    int numDFs;       // Número de dataframes almacenados en la lista
+    Nodo *primero;     // Puntero al primer Nodo de la lista
+} Lista;
+
+
+void establecer_color(int color);
+TipoDato detectar_tipo(char *valor);
