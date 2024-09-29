@@ -30,30 +30,55 @@ int fechaValida(char *valor){
 
 
 TipoDato detectar_tipo(char *valor) {
-    int esNumero = 1;
-
-    // Bucle para comprobar los valores de la cadena.
-    // \0 significa el final de la cadena.
-    for (int i = 0; valor[i] != '\0'; i++) {
-        if (valor[i] < '0' || valor[i] > '9') {
-            esNumero = 0;
-            break;
-        }
-    }
-
-    // Si es un número, devuelve NUMERICO
-    if (esNumero == 1) {
+    // Comprobar si es un número
+    if (esNumero(valor)) {
         printf("NUMERICO\n");
         return NUMERICO;
-    } 
-    else if (fechaValida(valor)) {
-        printf("FECHA\n");
-        return FECHA;
-    }else {
-        printf("TEXTO\n");
-        return TEXTO;
+        //tipo 0
     }
     
+    // Comprobar si es una fecha válida
+    if (fechaValida(valor)) {
+        printf("FECHA\n");
+        return FECHA;
+
+        //es tipo 2
+    }
+    
+    // Si no es ni número ni fecha, es texto
+    printf("TEXTO\n");
+    return TEXTO;
 }
 
-//funcion para crear un dataframe 
+
+int esNumero(char *valor) {
+    for (int i = 0; valor[i] != '\0'; i++) {
+        if (valor[i] < '0' || valor[i] > '9') {
+            return 0;  // No es un número
+        }
+    }
+    return NUMERICO;  // Es un número
+}
+
+Columna *crearColumna (char nombre[30], TipoDato tipo, void *datos, unsigned char *esNulo, int numFilas) {
+    Columna *columna = (Columna *)malloc(sizeof(Columna));
+    strcpy(columna->nombre, nombre);
+    columna->tipo = tipo; // Aquí el tipo se pasa como argumento
+    columna->datos = datos;
+    columna->esNulo = esNulo;
+    columna->numFilas = numFilas;
+
+    //como es un string tiene que ser un puntero
+    const char *tipoStr = (tipo == NUMERICO) ? "NUMERICO" :
+                          (tipo == FECHA) ? "FECHA" :
+                          (tipo == TEXTO) ? "TEXTO" : "DESCONOCIDO";
+
+
+    printf("Nombre: %s, Tipo: %s, Datos: %p, esNulo: %p, NumFilas: %d\n", 
+           columna->nombre, 
+           tipoStr, 
+           columna->datos, 
+           columna->esNulo, 
+           columna->numFilas);
+    return columna;
+}

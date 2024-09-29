@@ -21,10 +21,18 @@ int main()
         printf("Ingrese un comando: \n");
         printf("1:Imprimir en pantalla los datos del alumno: \n");
         printf("introduce una cadena:\n");
+
+
         
+
+        char *texto = "pepe"; // Valor numérico
+        unsigned char esNulo[1] = {0}; // Inicializa el array de nulos
+        Columna *col = crearColumna("Edad", detectar_tipo(texto), texto, esNulo, 1);
 
         gets(comando);
         detectar_tipo(comando);
+
+    
 
 
         if (strcmp(comando, "1") == 0)
