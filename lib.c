@@ -12,6 +12,23 @@ void establecer_color(int color) {
     SetConsoleTextAttribute(hConsole, color);
 }
 
+// funcion que valida la fecha.
+int fechaValida(char *valor){
+    int dia,mes, anio; 
+    // 2d/2d/4d es que se espera que el usuario ingrese la fecha en el formato dd/mm/yyyy 
+    if (sscanf(valor, "%2d/%2d/%4d", &dia, &mes, &anio) == 3){
+        if (dia >= 1 && dia <= 31 && mes >= 1 && mes <= 12 && anio >= 1900 && anio <= 2021){
+            return 1;
+        }else{
+            printf("Fecha no valida\n");
+        }
+    }else{
+        printf("Fecha no valida\n");
+    }
+    
+}
+
+
 TipoDato detectar_tipo(char *valor) {
     int esNumero = 1;
 
@@ -28,8 +45,15 @@ TipoDato detectar_tipo(char *valor) {
     if (esNumero == 1) {
         printf("NUMERICO\n");
         return NUMERICO;
-    } else {
+    } 
+    else if (fechaValida(valor)) {
+        printf("FECHA\n");
+        return FECHA;
+    }else {
         printf("TEXTO\n");
         return TEXTO;
     }
+    
 }
+
+//funcion para crear un dataframe 
