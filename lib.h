@@ -44,3 +44,4 @@ void establecer_color(int color);
 TipoDato detectar_tipo(char *valor);
 Columna *crearColumna (char nombre[30], TipoDato tipo, void *datos, unsigned char *esNulo, int numFilas);
 int esNumero(char *valor);
+void eliminarColumna(Columna *columna);

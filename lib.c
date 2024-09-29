@@ -82,3 +82,10 @@ Columna *crearColumna (char nombre[30], TipoDato tipo, void *datos, unsigned cha
            columna->numFilas);
     return columna;
 }
+
+void eliminarColumna(Columna *columna){
+    if (columna != NULL){
+        free(columna);
+    }
+
+}

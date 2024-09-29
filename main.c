@@ -12,7 +12,9 @@
 int main()
 {
     char comando[100];
-
+    char *texto = "pepe"; // Valor numérico
+    unsigned char esNulo[1] = {0}; // Inicializa el array de nulos
+    Columna *col = crearColumna("Edad", detectar_tipo(texto), texto, esNulo, 1);
 
     while (1)
     {
@@ -23,11 +25,9 @@ int main()
         printf("introduce una cadena:\n");
 
 
-        
+        printf("%s", col->nombre);
 
-        char *texto = "pepe"; // Valor numérico
-        unsigned char esNulo[1] = {0}; // Inicializa el array de nulos
-        Columna *col = crearColumna("Edad", detectar_tipo(texto), texto, esNulo, 1);
+
 
         gets(comando);
         detectar_tipo(comando);
@@ -39,7 +39,12 @@ int main()
         {
             establecer_color(VERDE);
             printf("Aleks Yuliyanov Filipov, aleks.yuliyanov@goumh.umh.es\n");
+        }else{
+            establecer_color(VERDE);
+            printf("Se ha liberado la memoria\n");
+            eliminarColumna(col);
         } 
+        
     }
     return 0;
 }
