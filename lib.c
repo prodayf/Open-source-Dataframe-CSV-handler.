@@ -87,16 +87,16 @@ Columna *crearColumna(char nombre[30], TipoDato tipo, void *datos, unsigned char
     columna->numFilas = numFilas;
 
     // como es un string tiene que ser un puntero
-    const char *tipoStr = (tipo == NUMERICO) ? "NUMERICO" : (tipo == FECHA) ? "FECHA"
-                                                        : (tipo == TEXTO)   ? "TEXTO"
-                                                                            : "DESCONOCIDO";
+    // const char *tipoStr = (tipo == NUMERICO) ? "NUMERICO" : (tipo == FECHA) ? "FECHA"
+    //                                                     : (tipo == TEXTO)   ? "TEXTO"
+    //                                                                         : "DESCONOCIDO";
 
-    printf("Nombre: %s, Tipo: %s, Datos: %p, esNulo: %p, NumFilas: %d\n",
-           columna->nombre,
-           tipoStr,
-           columna->datos,
-           columna->esNulo,
-           columna->numFilas);
+    // printf("Nombre: %s, Tipo: %s, Datos: %p, esNulo: %p, NumFilas: %d\n",
+    //        columna->nombre,
+    //        tipoStr,
+    //        columna->datos,
+    //        columna->esNulo,
+    //        columna->numFilas);
     return columna;
 }
 
@@ -135,18 +135,31 @@ void imprimirColumna(Columna *columna)
 {
     if (columna != NULL)
     {
-        printf("Nombre: %s, Tipo: %d, Datos: %s, esNulo: %d, NumFilas: %d\n",
+        printf("Nombre: %s, Tipo: %d, NumFilas: %d\n",
                columna->nombre,
                columna->tipo,
-               columna->datos,
-               columna->esNulo,
                columna->numFilas);
+
+        // Iterar sobre cada fila e imprimir el valor correspondiente
+        for (int i = 0; i < columna->numFilas; i++)
+        {
+            if (columna->esNulo[i])
+            {
+                printf("Fila %d: NULL\n", i);
+            }
+            else
+            {
+                // Dado que los datos son punteros a cadenas (char**)
+                printf("Fila %d: %s\n", i, ((char **)columna->datos)[i]);
+            }
+        }
     }
     else
     {
         printf("No se puede imprimir una columna nula.\n");
     }
 }
+
 
 Dataframe *crearDataframe(int numColumnas, int numFilas)
 {
