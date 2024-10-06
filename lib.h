@@ -49,3 +49,6 @@ Columna *crearColumna(char nombre[30], TipoDato tipo, void *datos, unsigned char
 int esNumero(char *valor);
 void eliminarColumna(Columna **columna);
 void imprimirColumna(Columna *columna);
+Dataframe *crearDataframe(int numColumnas, int numFilas);
+void imprimirDataframe(Dataframe *df);
+void eliminarDataframe(Dataframe **df);

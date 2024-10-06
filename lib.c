@@ -75,16 +75,16 @@ Columna *crearColumna(char nombre[30], TipoDato tipo, void *datos, unsigned char
 {
     Columna *columna = (Columna *)malloc(sizeof(Columna));
     strcpy(columna->nombre, nombre);
-    columna->tipo = tipo; // Aquí el tipo se pasa como argumento
-    columna->datos = datos;
-    columna->esNulo = esNulo;
-    columna->numFilas = numFilas;
 
     if (columna == NULL && datos == NULL && esNulo == NULL && numFilas == 0)
     {
         printf("Error al crear la columna\n");
         return NULL;
     }
+    columna->tipo = tipo; // Aquí el tipo se pasa como argumento
+    columna->datos = datos;
+    columna->esNulo = esNulo;
+    columna->numFilas = numFilas;
 
     // como es un string tiene que ser un puntero
     const char *tipoStr = (tipo == NUMERICO) ? "NUMERICO" : (tipo == FECHA) ? "FECHA"
@@ -135,7 +135,7 @@ void imprimirColumna(Columna *columna)
 {
     if (columna != NULL)
     {
-        printf("Nombre: %s, Tipo: %d, Datos: %p, esNulo: %p, NumFilas: %d\n",
+        printf("Nombre: %s, Tipo: %d, Datos: %s, esNulo: %d, NumFilas: %d\n",
                columna->nombre,
                columna->tipo,
                columna->datos,
@@ -146,4 +146,101 @@ void imprimirColumna(Columna *columna)
     {
         printf("No se puede imprimir una columna nula.\n");
     }
+}
+
+Dataframe *crearDataframe(int numColumnas, int numFilas)
+{
+    Dataframe *df = (Dataframe *)malloc(sizeof(Dataframe));
+    if (df == NULL)
+    {
+        printf("Error al crear el DataFrame\n");
+        return NULL;
+    }
+    df->numColumnas = numColumnas;
+    df->numFilas = numFilas;
+
+    // Reservar memoria para el arreglo de columnas
+    df->columnas = (Columna *)malloc(numColumnas * sizeof(Columna));
+    if (df->columnas == NULL)
+    {
+        printf("Error al reservar memoria para las columnas\n");
+        free(df);
+        return NULL;
+    }
+
+    // Reservar memoria para el índice
+    df->indice = (int *)malloc(numFilas * sizeof(int));
+    if (df->indice == NULL)
+    {
+        printf("Error al reservar memoria para el índice\n");
+        free(df->columnas);
+        free(df);
+        return NULL;
+    }
+
+    for (int i = 0; i < numFilas; i++)
+    {
+        df->indice[i] = i; // Asignar un número de fila único
+        // basicamente sierve para poder numerar las lineas de la tabla
+        // nos servira tambien para accerder rapidamente a una linea en especifico
+    }
+
+
+
+    return df;
+}
+
+// void eliminarDataframe(Dataframe **df)
+// {
+//     if (df != NULL && *df != NULL)
+//     { // Verifica que el puntero y el DataFrame no sean nulos
+//         // Liberar cada columna en el DataFrame
+//         for (int i = 0; i < (*df)->numColumnas; i++)
+//         {
+//             // Liberar los datos de cada columna si no son NULL
+//             if ((*df)->columnas[i].datos != NULL)
+//             {
+//                 free((*df)->columnas[i].datos);
+//                 (*df)->columnas[i].datos = NULL; // Opcional, pero recomendable
+//             }
+//             // Liberar el arreglo esNulo si no es NULL
+//             if ((*df)->columnas[i].esNulo != NULL)
+//             {
+//                 free((*df)->columnas[i].esNulo);
+//                 (*df)->columnas[i].esNulo = NULL; // Opcional, pero recomendable
+//             }
+//         }
+
+//         // Liberar el arreglo de columnas
+//         free((*df)->columnas);
+
+//         // Liberar el índice
+//         free((*df)->indice);
+
+//         // Finalmente, liberar el DataFrame
+//         free(*df);
+//         *df = NULL; // Establecer el puntero a NULL después de liberar
+//     }
+//     else
+//     {
+//         printf("No se puede eliminar un DataFrame nulo.\n");
+//     }
+// }
+
+
+void imprimirDataframe(Dataframe *df) {
+    // Comprobar si el DataFrame es nulo
+    if (df == NULL) {
+        printf("El DataFrame es nulo.\n");
+        return;
+    }
+
+    // Imprimir encabezados de las columnas
+    for (int i = 0; i < df->numColumnas; i++) {
+        printf("%-30s", df->columnas[i].nombre);
+    }
+    printf("\n"); // Salto de línea después de imprimir los encabezados
+
+
+
 }
