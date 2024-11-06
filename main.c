@@ -49,10 +49,18 @@ int main()
 
         else if (strcmp(comando, "4") == 0)
         {
-            for (int i = 0; i < df->numColumnas; i++)
-            {
-                imprimirDataframe(df);
-            }
+            imprimirDataframe(df);
+        }
+        else if(strcmp(comando, "5") == 0)
+        {
+            eliminarDataframe(&df);
+            printf("Dataframe eliminado correctamente.\n");
+        }
+    
+        else
+        {
+            establecer_color(ROJO);
+            printf("Comando no reconocido.\n");
         }
     }
     return 0;

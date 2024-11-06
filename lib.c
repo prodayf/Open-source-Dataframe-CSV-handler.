@@ -180,6 +180,10 @@ Dataframe *crearDataframe(int numColumnas, int numFilas)
         free(df);
         return NULL;
     }
+    // Inicializar cada columna en el DataFrame
+    for (int i = 0; i < numColumnas; i++) {
+        df->columnas[i] = (Columna){0}; // O inicializa según tu estructura de Columna
+    }
 
     // Reservar memoria para el índice
     df->indice = (int *)malloc(numFilas * sizeof(int));
@@ -203,42 +207,45 @@ Dataframe *crearDataframe(int numColumnas, int numFilas)
     return df;
 }
 
-// void eliminarDataframe(Dataframe **df)
-// {
-//     if (df != NULL && *df != NULL)
-//     { // Verifica que el puntero y el DataFrame no sean nulos
-//         // Liberar cada columna en el DataFrame
-//         for (int i = 0; i < (*df)->numColumnas; i++)
-//         {
-//             // Liberar los datos de cada columna si no son NULL
-//             if ((*df)->columnas[i].datos != NULL)
-//             {
-//                 free((*df)->columnas[i].datos);
-//                 (*df)->columnas[i].datos = NULL; // Opcional, pero recomendable
-//             }
-//             // Liberar el arreglo esNulo si no es NULL
-//             if ((*df)->columnas[i].esNulo != NULL)
-//             {
-//                 free((*df)->columnas[i].esNulo);
-//                 (*df)->columnas[i].esNulo = NULL; // Opcional, pero recomendable
-//             }
-//         }
 
-//         // Liberar el arreglo de columnas
-//         free((*df)->columnas);
+void eliminarDataframe(Dataframe **df)
+{
+    if (df != NULL && *df != NULL)
+    { // Verifica que el puntero y el DataFrame no sean nulos
+        // Liberar cada columna en el DataFrame
+        for (int i = 0; i < (*df)->numColumnas; i++)
+        {
+            // Liberar los datos de cada columna si no son NULL
+            if ((*df)->columnas[i].datos != NULL)
+            {
+                free((*df)->columnas[i].datos);
+                (*df)->columnas[i].datos = NULL; // Opcional, pero recomendable
+            }
+            // Liberar el arreglo esNulo si no es NULL
+            if ((*df)->columnas[i].esNulo != NULL)
+            {
+                free((*df)->columnas[i].esNulo);
+                (*df)->columnas[i].esNulo = NULL; // Opcional, pero recomendable
+            }
+        }
 
-//         // Liberar el índice
-//         free((*df)->indice);
+        // Liberar el arreglo de columnas
+        free((*df)->columnas);
 
-//         // Finalmente, liberar el DataFrame
-//         free(*df);
-//         *df = NULL; // Establecer el puntero a NULL después de liberar
-//     }
-//     else
-//     {
-//         printf("No se puede eliminar un DataFrame nulo.\n");
-//     }
-// }
+        // Liberar el índice
+        free((*df)->indice);
+
+        // Finalmente, liberar el DataFrame
+        free(*df);
+        *df = NULL; // Establecer el puntero a NULL después de liberar
+    }
+    else
+    {
+        printf("No se puede eliminar un DataFrame nulo.\n");
+    }
+}
+
+
 
 
 void imprimirDataframe(Dataframe *df) {
@@ -254,6 +261,17 @@ void imprimirDataframe(Dataframe *df) {
     }
     printf("\n"); // Salto de línea después de imprimir los encabezados
 
-
-
+    // Imprimir los datos de cada fila
+    for (int i = 0; i < df->numFilas; i++) {
+        for (int j = 0; j < df->numColumnas; j++) {
+            // Suponiendo que la columna tiene un puntero a datos que almacena los valores
+            if (df->columnas[j].tipo == TEXTO) {
+                printf("%-30s", ((char **)df->columnas[j].datos)[i]); // Imprime datos de tipo texto
+            } else if (df->columnas[j].tipo == NUMERICO) {
+                printf("%-30s", ((char **)df->columnas[j].datos)[i]); // Imprime datos numéricos como texto
+            }
+            // Agrega condiciones para otros tipos de datos si es necesario
+        }
+        printf("\n"); // Salto de línea después de imprimir una fila
+    }
 }
