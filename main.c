@@ -18,9 +18,16 @@ int main()
     Columna *col = crearColumna("Nombres", detectar_tipo(nombres[0]), nombres, esNulo, 3);
     Columna *col2 = crearColumna("Edad", detectar_tipo(numeros[0]), numeros, esNulo, 3);
     Dataframe *df = crearDataframe(2, 3);
+    Dataframe *df2 = crearDataframe(2, 3);
+    
+
+    Lista lista;
+    inicializarLista(&lista);
 
     df->columnas[0] = *col;
     df->columnas[1] = *col2;
+    df2->columnas[0] = *col;
+    df2->columnas[1] = *col2;
 
     while (1)
     {
@@ -51,12 +58,28 @@ int main()
         {
             imprimirDataframe(df);
         }
-        else if(strcmp(comando, "5") == 0)
+        else if (strcmp(comando, "5") == 0)
         {
             eliminarDataframe(&df);
             printf("Dataframe eliminado correctamente.\n");
         }
+        else if (strcmp(comando, "6") == 0)
+        {
+
+            insertarDataframeLista(&lista, df);
+            insertarDataframeLista(&lista, df2);
     
+        }
+        else if (strcmp(comando, "7") == 0)
+        {
+            imprimirLista(&lista);
+        }
+
+         else if (strcmp(comando, "8") == 0)
+        {
+            eliminarDataframeLista(&lista, df);
+        }
+
         else
         {
             establecer_color(ROJO);

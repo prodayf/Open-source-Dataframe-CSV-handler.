@@ -52,3 +52,8 @@
     Dataframe *crearDataframe(int numColumnas, int numFilas);
     void imprimirDataframe(Dataframe *df);
     void eliminarDataframe(Dataframe **df);
+    void inicializarLista(Lista *lista);
+    void insertarDataframeLista(Lista *lista, Dataframe *df);
+    void imprimirLista(Lista *lista);
+    void eliminarTodosLosDataframes(Lista *lista);
+    void eliminarDataframeLista(Lista *lista, Dataframe *df);

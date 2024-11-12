@@ -160,7 +160,6 @@ void imprimirColumna(Columna *columna)
     }
 }
 
-
 Dataframe *crearDataframe(int numColumnas, int numFilas)
 {
     Dataframe *df = (Dataframe *)malloc(sizeof(Dataframe));
@@ -181,7 +180,8 @@ Dataframe *crearDataframe(int numColumnas, int numFilas)
         return NULL;
     }
     // Inicializar cada columna en el DataFrame
-    for (int i = 0; i < numColumnas; i++) {
+    for (int i = 0; i < numColumnas; i++)
+    {
         df->columnas[i] = (Columna){0}; // O inicializa según tu estructura de Columna
     }
 
@@ -202,11 +202,8 @@ Dataframe *crearDataframe(int numColumnas, int numFilas)
         // nos servira tambien para accerder rapidamente a una linea en especifico
     }
 
-
-
     return df;
 }
-
 
 void eliminarDataframe(Dataframe **df)
 {
@@ -245,33 +242,109 @@ void eliminarDataframe(Dataframe **df)
     }
 }
 
-
-
-
-void imprimirDataframe(Dataframe *df) {
+void imprimirDataframe(Dataframe *df)
+{
     // Comprobar si el DataFrame es nulo
-    if (df == NULL) {
+    if (df == NULL)
+    {
         printf("El DataFrame es nulo.\n");
         return;
     }
 
     // Imprimir encabezados de las columnas
-    for (int i = 0; i < df->numColumnas; i++) {
+    for (int i = 0; i < df->numColumnas; i++)
+    {
         printf("%-30s", df->columnas[i].nombre);
     }
     printf("\n"); // Salto de línea después de imprimir los encabezados
 
     // Imprimir los datos de cada fila
-    for (int i = 0; i < df->numFilas; i++) {
-        for (int j = 0; j < df->numColumnas; j++) {
+    for (int i = 0; i < df->numFilas; i++)
+    {
+        for (int j = 0; j < df->numColumnas; j++)
+        {
             // Suponiendo que la columna tiene un puntero a datos que almacena los valores
-            if (df->columnas[j].tipo == TEXTO) {
+            if (df->columnas[j].tipo == TEXTO)
+            {
                 printf("%-30s", ((char **)df->columnas[j].datos)[i]); // Imprime datos de tipo texto
-            } else if (df->columnas[j].tipo == NUMERICO) {
+            }
+            else if (df->columnas[j].tipo == NUMERICO)
+            {
                 printf("%-30s", ((char **)df->columnas[j].datos)[i]); // Imprime datos numéricos como texto
             }
             // Agrega condiciones para otros tipos de datos si es necesario
         }
         printf("\n"); // Salto de línea después de imprimir una fila
     }
+}
+
+void inicializarLista(Lista *lista)
+{
+    lista->numDFs = 0;
+    lista->primero = NULL;
+}
+
+void insertarDataframeLista(Lista *lista, Dataframe *df)
+{
+    Nodo *nuevoNodo = (Nodo *)malloc(sizeof(Nodo));
+    if (nuevoNodo == NULL)
+    {
+        printf("Error al insertar el DataFrame en la lista\n");
+        return;
+    }
+
+    nuevoNodo->df = df;
+    nuevoNodo->siguiente = lista->primero;
+    lista->primero = nuevoNodo;
+    lista->numDFs++;
+
+    printf("Dataframe insertado correctamente en la lista.\n");
+    imprimirDataframe(df);
+}
+
+void imprimirLista(Lista *lista) {
+    if (lista == NULL || lista->primero == NULL) {
+        printf("La lista está vacía.\n");
+        return;
+    }
+
+    Nodo *actual = lista->primero;
+    while (actual != NULL) {
+        if (actual->df != NULL) {
+            imprimirDataframe(actual->df);
+        }
+        actual = actual->siguiente;
+    }
+
+    printf("Número de Dataframes en la lista: %d\n", lista->numDFs);
+}
+
+void eliminarDataframeLista(Lista *lista, Dataframe *df) {
+    if (lista == NULL || lista->primero == NULL) {
+        printf("La lista está vacía.\n");
+        return;
+    }
+
+    Nodo *actual = lista->primero;
+    Nodo *anterior = NULL;
+
+    while (actual != NULL) {
+        if (actual->df == df) {
+            if (anterior == NULL) {
+                lista->primero = actual->siguiente;
+            } else {
+                anterior->siguiente = actual->siguiente;
+            }
+
+            free(actual);
+            lista->numDFs--;
+            printf("Dataframe eliminado correctamente de la lista.\n");
+            return;
+        }
+
+        anterior = actual;
+        actual = actual->siguiente;
+    }
+
+    printf("El DataFrame no se encontró en la lista.\n");
 }
