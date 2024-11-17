@@ -205,6 +205,7 @@ Dataframe *crearDataframe(int numColumnas, int numFilas)
     return df;
 }
 
+// TODO: implementar la funcion correctamente ya que hay alguna especie de error,
 void eliminarDataframe(Dataframe **df)
 {
     if (df != NULL && *df != NULL)
@@ -302,15 +303,19 @@ void insertarDataframeLista(Lista *lista, Dataframe *df)
     imprimirDataframe(df);
 }
 
-void imprimirLista(Lista *lista) {
-    if (lista == NULL || lista->primero == NULL) {
+void imprimirLista(Lista *lista)
+{
+    if (lista == NULL || lista->primero == NULL)
+    {
         printf("La lista está vacía.\n");
         return;
     }
 
     Nodo *actual = lista->primero;
-    while (actual != NULL) {
-        if (actual->df != NULL) {
+    while (actual != NULL)
+    {
+        if (actual->df != NULL)
+        {
             imprimirDataframe(actual->df);
         }
         actual = actual->siguiente;
@@ -319,8 +324,10 @@ void imprimirLista(Lista *lista) {
     printf("Número de Dataframes en la lista: %d\n", lista->numDFs);
 }
 
-void eliminarDataframeLista(Lista *lista, Dataframe *df) {
-    if (lista == NULL || lista->primero == NULL) {
+void eliminarDataframeLista(Lista *lista, Dataframe *df)
+{
+    if (lista == NULL || lista->primero == NULL)
+    {
         printf("La lista está vacía.\n");
         return;
     }
@@ -328,23 +335,71 @@ void eliminarDataframeLista(Lista *lista, Dataframe *df) {
     Nodo *actual = lista->primero;
     Nodo *anterior = NULL;
 
-    while (actual != NULL) {
-        if (actual->df == df) {
-            if (anterior == NULL) {
+    while (actual != NULL)
+    {
+        // Si encontramos el dataframe a eliminar
+        if (actual->df == df)
+        {
+            // Si es el primer nodo de la lista
+            if (anterior == NULL)
+            {
                 lista->primero = actual->siguiente;
-            } else {
+            }
+            else
+            {
                 anterior->siguiente = actual->siguiente;
             }
 
+            // Libera el dataframe antes de liberar el nodo
+            if (actual->df != NULL)
+            {
+                // eliminarDataframe(&(actual->df));  // Libera el dataframe
+                actual->df = NULL;
+            }
+
+            // Libera el nodo actual
             free(actual);
-            lista->numDFs--;
+            lista->numDFs--; // Decrementa el número de DataFrames en la lista
             printf("Dataframe eliminado correctamente de la lista.\n");
             return;
         }
 
+        // Avanza al siguiente nodo
         anterior = actual;
         actual = actual->siguiente;
     }
 
     printf("El DataFrame no se encontró en la lista.\n");
+}
+
+void eliminarDataframes(Lista *lista)
+{
+    if (lista == NULL || lista->primero == NULL)
+    {
+        printf("La lista ya está vacía o no existe.\n");
+        return;
+    }
+
+    Nodo *actual = lista->primero;
+    Nodo *siguiente;
+
+    while (actual != NULL)
+    {
+        siguiente = actual->siguiente; // Guarda el siguiente nodo antes de liberar
+
+        // Libera el dataframe si existe
+        if (actual->df != NULL)
+        {
+            actual->df = NULL; // Evita liberar el dataframe dos veces
+            printf("Dataframe eliminado correctamente de la lista.\n");
+        }
+
+        // Libera el nodo actual
+        free(actual);       // Aquí se libera el nodo
+        actual = siguiente; // Avanza al siguiente nodo
+    }
+
+    lista->primero = NULL; // La lista queda vacía
+    lista->numDFs = 0;     // Restablece el contador de DataFrames
+    printf("Se han eliminado todos los dataframes de la lista.\n");
 }
