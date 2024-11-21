@@ -4,6 +4,9 @@
 #include <windows.h>
 #include <time.h>
 #include "lib.h"
+#define MAX_FILAS 1000
+#define MAX_COLUMNAS 10
+#define MAX_STRING 100
 
 // Función para establecer el color de la consola
 // Parámetros: pasa el color que esta definido en el main.c como variables globales.
@@ -402,4 +405,87 @@ void eliminarDataframes(Lista *lista)
     lista->primero = NULL; // La lista queda vacía
     lista->numDFs = 0;     // Restablece el contador de DataFrames
     printf("Se han eliminado todos los dataframes de la lista.\n");
+}
+
+Dataframe* load(char *filename)
+{
+    FILE *file = fopen(filename, "r");
+    if (file == NULL)
+    {
+        printf("Error al abrir el archivo\n");
+        return NULL;
+    }
+
+    char buffer[MAX_STRING];
+    int numColumnas = 0;
+    int numFilas = 0;
+
+    // Leer la primera línea para contar las columnas
+    if (fgets(buffer, sizeof(buffer), file) != NULL)
+    {
+        char *token = strtok(buffer, ",");
+        while (token != NULL)
+        {
+            numColumnas++;
+            token = strtok(NULL, ",");
+        }
+    }
+
+    // Allocate memory for the dataframe
+    Dataframe *df = (Dataframe *)malloc(sizeof(Dataframe));
+    df->numFilas = 0;
+    df->numColumnas = numColumnas;
+    df->columnas = (Columna *)malloc(numColumnas * sizeof(Columna));
+
+    // Allocate memory for each column's datos and esNulo
+    for (int i = 0; i < numColumnas; i++) {
+        df->columnas[i].datos = (char **)malloc(MAX_FILAS * sizeof(char *));
+        df->columnas[i].esNulo = (unsigned char *)malloc(MAX_FILAS * sizeof(unsigned char));
+        df->columnas[i].numFilas = 0;
+    }
+
+    // Reset file pointer to the beginning
+    rewind(file);
+
+    // Leer la primera línea para los nombres de las columnas
+    if (fgets(buffer, sizeof(buffer), file) != NULL)
+    {
+        char *token = strtok(buffer, ",");
+        int colIndex = 0;
+        while (token != NULL)
+        {
+            strncpy(df->columnas[colIndex].nombre, token, 30);
+            colIndex++;
+            token = strtok(NULL, ",");
+        }
+    }
+
+    // Leer las filas restantes
+    while (fgets(buffer, sizeof(buffer), file) != NULL)
+    {
+        int colIndex = 0;
+        char *token = strtok(buffer, ",");
+        while (token != NULL && colIndex < numColumnas)
+        {
+            // Detectar tipo y asignar a las columnas
+            TipoDato tipo = detectar_tipo(token);
+            df->columnas[colIndex].tipo = tipo;
+
+            // Asignar valor a la columna correspondiente
+            if (df->columnas[colIndex].numFilas < MAX_FILAS) {
+                // Cast the datos field to char** and assign the value
+                ((char **)df->columnas[colIndex].datos)[df->columnas[colIndex].numFilas] = strdup(token);
+                df->columnas[colIndex].esNulo[df->columnas[colIndex].numFilas] = (strlen(token) == 0); // Marcar como nulo si está vacío
+                df->columnas[colIndex].numFilas++;
+            }
+
+            colIndex++;
+            token = strtok(NULL, ",");
+        }
+        df->numFilas++;
+    }
+
+    imprimirDataframe(df);
+    fclose(file);
+    return df;
 }

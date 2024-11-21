@@ -83,11 +83,28 @@ int main()
             eliminarDataframes(&lista);
         }
 
+        else if (strcmp(comando, "quit") == 0)
+        {
+            eliminarDataframes(&lista);
+            establecer_color(VERDE);
+            printf("Saliendo del programa...\n");
+            establecer_color(BLANCO);
+            exit(0);
+        }
+
+        else if (strcmp(comando, "load") == 0)
+        {
+            load("datos.csv");
+        }
+
+
         else
         {
             establecer_color(ROJO);
             printf("Comando no reconocido.\n");
         }
     }
+
+    
     return 0;
 }

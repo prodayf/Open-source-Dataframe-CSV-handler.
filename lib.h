@@ -58,3 +58,4 @@ void imprimirLista(Lista *lista);
 void eliminarTodosLosDataframes(Lista *lista);
 void eliminarDataframeLista(Lista *lista, Dataframe *df);
 void eliminarDataframes(Lista *lista);
+Dataframe *load(char *filename);
