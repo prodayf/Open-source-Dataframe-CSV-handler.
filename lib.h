@@ -1,3 +1,5 @@
+
+#include <stddef.h> // Para NULL
 // Tipo enumerado para representar los diferentes tipos de datos en las columnas
 typedef enum
 {
@@ -59,3 +61,6 @@ void eliminarTodosLosDataframes(Lista *lista);
 void eliminarDataframeLista(Lista *lista, Dataframe *df);
 void eliminarDataframes(Lista *lista);
 Dataframe *load(char *filename);
+void generarPrompt();
+
+

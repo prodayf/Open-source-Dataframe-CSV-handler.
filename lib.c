@@ -7,6 +7,9 @@
 #define MAX_FILAS 1000
 #define MAX_COLUMNAS 10
 #define MAX_STRING 100
+#define MAX_DATAFRAMES 100
+Dataframe *dataframeActivo = NULL;
+
 
 // Función para establecer el color de la consola
 // Parámetros: pasa el color que esta definido en el main.c como variables globales.
@@ -302,8 +305,8 @@ void insertarDataframeLista(Lista *lista, Dataframe *df)
     lista->primero = nuevoNodo;
     lista->numDFs++;
 
-    printf("Dataframe insertado correctamente en la lista.\n");
-    imprimirDataframe(df);
+    //printf("Dataframe insertado correctamente en la lista.\n");
+    //imprimirDataframe(df);
 }
 
 void imprimirLista(Lista *lista)
@@ -319,12 +322,12 @@ void imprimirLista(Lista *lista)
     {
         if (actual->df != NULL)
         {
-            imprimirDataframe(actual->df);
+            //imprimirDataframe(actual->df);
         }
         actual = actual->siguiente;
     }
 
-    printf("Número de Dataframes en la lista: %d\n", lista->numDFs);
+    printf("Numero  de Dataframes en la lista: %d\n", lista->numDFs);
 }
 
 void eliminarDataframeLista(Lista *lista, Dataframe *df)
@@ -420,7 +423,7 @@ Dataframe* load(char *filename)
     int numColumnas = 0;
     int numFilas = 0;
 
-    // Leer la primera línea para contar las columnas
+    //primero cuenta el numero coluumnas que hay.
     if (fgets(buffer, sizeof(buffer), file) != NULL)
     {
         char *token = strtok(buffer, ",");
@@ -463,7 +466,9 @@ Dataframe* load(char *filename)
     // Leer las filas restantes
     while (fgets(buffer, sizeof(buffer), file) != NULL)
     {
-        int colIndex = 0;
+        int colIndex = 0; // lo usamos para la referencia a cada array de columnas.
+        //es decir, si colindex es 0, entonces se refiere a la primera columna...
+        //esto es posible porque en la estructura de la columna se tiene un array de columnas.
         char *token = strtok(buffer, ",");
         while (token != NULL && colIndex < numColumnas)
         {
@@ -477,6 +482,10 @@ Dataframe* load(char *filename)
                 ((char **)df->columnas[colIndex].datos)[df->columnas[colIndex].numFilas] = strdup(token);
                 df->columnas[colIndex].esNulo[df->columnas[colIndex].numFilas] = (strlen(token) == 0); // Marcar como nulo si está vacío
                 df->columnas[colIndex].numFilas++;
+                //con cada iteracion se plasman los datos en la tabla utilizando el colindex para saber a que columna pertenece.
+
+
+
             }
 
             colIndex++;
@@ -484,6 +493,7 @@ Dataframe* load(char *filename)
         }
         df->numFilas++;
     }
+
 
     imprimirDataframe(df);
     fclose(file);

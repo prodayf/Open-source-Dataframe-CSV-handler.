@@ -94,9 +94,10 @@ int main()
 
         else if (strcmp(comando, "load") == 0)
         {
-            load("datos.csv");
-        }
 
+            insertarDataframeLista(&lista, load("datos.csv"));
+            imprimirLista(&lista);
+        }
 
         else
         {
@@ -105,6 +106,5 @@ int main()
         }
     }
 
-    
     return 0;
 }
