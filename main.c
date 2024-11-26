@@ -6,7 +6,7 @@
 #define ROJO 12   // Color rojo
 #define VERDE 10  // Color verde
 #define BLANCO 15 // Color blanco
-
+int aactivo = -1;
 int main()
 {
     char comando[100];
@@ -31,7 +31,7 @@ int main()
     while (1)
     {
         establecer_color(BLANCO);
-        printf("[?]:> ");
+        prompt(&lista, 0, aactivo);
         printf("Ingrese un comando: \n");
 
         gets(comando);
@@ -92,11 +92,15 @@ int main()
             exit(0);
         }
 
-        else if (strcmp(comando, "load") == 0)
+        else if (strncmp(comando, "load",4) == 0)
         {
-
-            insertarDataframeLista(&lista, load("datos.csv"));
+            char *token = strtok(comando, " ");
+            token = strtok(NULL, " ");
+            
+            printf(token);
+            insertarDataframeLista(&lista, load(token));
             imprimirLista(&lista);
+            prompt(&lista,0,aactivo);
         }
 
         else

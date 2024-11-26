@@ -8,7 +8,7 @@
 #define MAX_COLUMNAS 10
 #define MAX_STRING 100
 #define MAX_DATAFRAMES 100
-Dataframe *dataframeActivo = NULL;
+int activo = -1;
 
 
 // Función para establecer el color de la consola
@@ -492,10 +492,43 @@ Dataframe* load(char *filename)
             token = strtok(NULL, ",");
         }
         df->numFilas++;
+        
     }
 
 
     imprimirDataframe(df);
     fclose(file);
     return df;
+}
+
+void prompt(Lista *lista, int indice, int activo){
+    activo = 1;
+    if(lista == NULL || lista->primero == NULL || activo == -1){
+        printf("[?]:>");
+        return;
+    }
+    Nodo *actual = lista->primero;
+    int i = 0;
+
+    while(actual !=NULL && i < indice){
+        actual = actual->siguiente;
+        i++;
+    }
+
+    if(actual == NULL || actual->df == NULL){
+        printf("[?]:>");
+        return;
+    }else{
+        printf("[df%d: %d,%d]:> ", indice, actual->df->numFilas, actual->df->numColumnas);
+    }
+
+}
+
+
+void procesarComando(char *comando){
+    char *token = strtok(comando, " ");
+    if(token != NULL && strcmp(token, "load") == 0){
+        token = strtok(NULL, " ");
+        printf(token);
+    }
 }
