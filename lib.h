@@ -64,5 +64,7 @@ Dataframe *load(char *filename);
 void prompt(Lista *lista, int indice, int activo);
 
 void procesarComando(char *comando);
-
+void meta(Dataframe *df);
+const char* obtener_nombre_tipo(TipoDato tipo);
+void delcolumn(Dataframe *df, const char *nombreColumna);
 

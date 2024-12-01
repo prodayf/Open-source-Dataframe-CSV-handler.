@@ -8,8 +8,10 @@
 #define MAX_COLUMNAS 10
 #define MAX_STRING 100
 #define MAX_DATAFRAMES 100
+#define ROJO 12   // Color rojo
+#define VERDE 10  // Color verde
+#define BLANCO 15 // Color blanco
 int activo = -1;
-
 
 // Función para establecer el color de la consola
 // Parámetros: pasa el color que esta definido en el main.c como variables globales.
@@ -300,13 +302,21 @@ void insertarDataframeLista(Lista *lista, Dataframe *df)
         return;
     }
 
+    // comprobar si la lista esta vacia.
+    if (lista == NULL || df == NULL)
+    {
+
+        printf("Error al insertar el DataFrame en la lista\n");
+        return;
+    }
+
     nuevoNodo->df = df;
     nuevoNodo->siguiente = lista->primero;
     lista->primero = nuevoNodo;
     lista->numDFs++;
 
-    //printf("Dataframe insertado correctamente en la lista.\n");
-    //imprimirDataframe(df);
+    // printf("Dataframe insertado correctamente en la lista.\n");
+    // imprimirDataframe(df);
 }
 
 void imprimirLista(Lista *lista)
@@ -322,7 +332,7 @@ void imprimirLista(Lista *lista)
     {
         if (actual->df != NULL)
         {
-            //imprimirDataframe(actual->df);
+            // imprimirDataframe(actual->df);
         }
         actual = actual->siguiente;
     }
@@ -410,7 +420,7 @@ void eliminarDataframes(Lista *lista)
     printf("Se han eliminado todos los dataframes de la lista.\n");
 }
 
-Dataframe* load(char *filename)
+Dataframe *load(char *filename)
 {
     FILE *file = fopen(filename, "r");
     if (file == NULL)
@@ -423,7 +433,7 @@ Dataframe* load(char *filename)
     int numColumnas = 0;
     int numFilas = 0;
 
-    //primero cuenta el numero coluumnas que hay.
+    // primero cuenta el numero coluumnas que hay.
     if (fgets(buffer, sizeof(buffer), file) != NULL)
     {
         char *token = strtok(buffer, ",");
@@ -441,7 +451,8 @@ Dataframe* load(char *filename)
     df->columnas = (Columna *)malloc(numColumnas * sizeof(Columna));
 
     // Allocate memory for each column's datos and esNulo
-    for (int i = 0; i < numColumnas; i++) {
+    for (int i = 0; i < numColumnas; i++)
+    {
         df->columnas[i].datos = (char **)malloc(MAX_FILAS * sizeof(char *));
         df->columnas[i].esNulo = (unsigned char *)malloc(MAX_FILAS * sizeof(unsigned char));
         df->columnas[i].numFilas = 0;
@@ -467,8 +478,8 @@ Dataframe* load(char *filename)
     while (fgets(buffer, sizeof(buffer), file) != NULL)
     {
         int colIndex = 0; // lo usamos para la referencia a cada array de columnas.
-        //es decir, si colindex es 0, entonces se refiere a la primera columna...
-        //esto es posible porque en la estructura de la columna se tiene un array de columnas.
+        // es decir, si colindex es 0, entonces se refiere a la primera columna...
+        // esto es posible porque en la estructura de la columna se tiene un array de columnas.
         char *token = strtok(buffer, ",");
         while (token != NULL && colIndex < numColumnas)
         {
@@ -477,58 +488,137 @@ Dataframe* load(char *filename)
             df->columnas[colIndex].tipo = tipo;
 
             // Asignar valor a la columna correspondiente
-            if (df->columnas[colIndex].numFilas < MAX_FILAS) {
+            if (df->columnas[colIndex].numFilas < MAX_FILAS)
+            {
                 // Cast the datos field to char** and assign the value
                 ((char **)df->columnas[colIndex].datos)[df->columnas[colIndex].numFilas] = strdup(token);
                 df->columnas[colIndex].esNulo[df->columnas[colIndex].numFilas] = (strlen(token) == 0); // Marcar como nulo si está vacío
                 df->columnas[colIndex].numFilas++;
-                //con cada iteracion se plasman los datos en la tabla utilizando el colindex para saber a que columna pertenece.
-
-
-
+                // con cada iteracion se plasman los datos en la tabla utilizando el colindex para saber a que columna pertenece.
             }
 
             colIndex++;
             token = strtok(NULL, ",");
         }
         df->numFilas++;
-        
     }
-
 
     imprimirDataframe(df);
     fclose(file);
     return df;
 }
 
-void prompt(Lista *lista, int indice, int activo){
+void prompt(Lista *lista, int indice, int activo)
+{
     activo = 1;
-    if(lista == NULL || lista->primero == NULL || activo == -1){
+    if (lista == NULL || lista->primero == NULL || activo == -1)
+    {
         printf("[?]:>");
         return;
     }
     Nodo *actual = lista->primero;
     int i = 0;
 
-    while(actual !=NULL && i < indice){
+    while (actual != NULL && i < indice)
+    {
         actual = actual->siguiente;
         i++;
     }
 
-    if(actual == NULL || actual->df == NULL){
+    if (actual == NULL || actual->df == NULL)
+    {
         printf("[?]:>");
         return;
-    }else{
+    }
+    else
+    {
         printf("[df%d: %d,%d]:> ", indice, actual->df->numFilas, actual->df->numColumnas);
     }
-
 }
 
-
-void procesarComando(char *comando){
+void procesarComando(char *comando)
+{
     char *token = strtok(comando, " ");
-    if(token != NULL && strcmp(token, "load") == 0){
+    if (token != NULL && strcmp(token, "load") == 0)
+    {
         token = strtok(NULL, " ");
         printf(token);
+    }
+}
+const char *obtener_nombre_tipo(TipoDato tipo)
+{
+    switch (tipo)
+    {
+    case NUMERICO:
+        return "NUMERICO";
+    case FECHA:
+        return "FECHA";
+    case TEXTO:
+        return "TEXTO";
+    default:
+        return "DESCONOCIDO";
+    }
+}
+
+void meta(Dataframe *df)
+{
+    if (df == NULL)
+    {
+        establecer_color(ROJO);
+        printf("El dataframe es nulo\n");
+        return;
+    }
+
+    for (int i = 0; i < df->numColumnas; i++)
+    {
+        establecer_color(VERDE);
+        printf("Columna %d: %s tipo datos:%s numero filas:%d\n", i, df->columnas[i].nombre, obtener_nombre_tipo(df->columnas[i].tipo), df->columnas[i].numFilas);
+    }
+}
+
+void delcolumn(Dataframe *df, const char *nombreColumna)
+{
+    // comprobar si el dataframe es nulo
+    if (df == NULL)
+    {
+        establecer_color(ROJO);
+        printf("El dataframe es nulo\n");
+        return;
+    }
+
+    // usamos indice para poder recorrer  las columnas del dataframe
+    int indice = -1;
+    for (int i = 0; i < df->numColumnas; i++)
+    { // bucle para recorrer las columnas
+        if (strcmp(df->columnas[i].nombre, nombreColumna) == 0)
+        {               // compara el nombre de la columna con el introducido por parametro
+            indice = i; // guarda el indice de la columna de coindida con el nombre.
+            break;
+        }
+    }
+
+    if (indice == -1)
+    {
+        establecer_color(ROJO);
+        printf("Columna no encontrada\n");
+        return;
+    }
+
+    free(df->columnas[indice].datos);  // libera la memoria de los datos de la columna
+    free(df->columnas[indice].esNulo); // libera la memoria de los datos nulos de la columna
+
+    for (int i = indice; i < df->numColumnas - 1; i++)
+    {
+        df->columnas[i] = df->columnas[i + 1]; // mueve las columnas una posicion a la izquierda
+    }
+
+    df->numColumnas--;
+
+    df->columnas = (Columna *)realloc(df->columnas, df->numColumnas * sizeof(Columna));
+    if (df->columnas == NULL && df->numColumnas > 0)
+    {
+        establecer_color(ROJO);
+        printf("Error: Fallo al reasignar memoria para las columnas.\n");
+        return;
     }
 }
