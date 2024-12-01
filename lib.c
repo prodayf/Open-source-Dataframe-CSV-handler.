@@ -436,11 +436,11 @@ Dataframe *load(char *filename)
     // primero cuenta el numero coluumnas que hay.
     if (fgets(buffer, sizeof(buffer), file) != NULL)
     {
-        char *token = strtok(buffer, ",");
+        char *token = strtok(buffer, ",\n");
         while (token != NULL)
         {
             numColumnas++;
-            token = strtok(NULL, ",");
+            token = strtok(NULL, ",\n");
         }
     }
 
@@ -464,13 +464,13 @@ Dataframe *load(char *filename)
     // Leer la primera línea para los nombres de las columnas
     if (fgets(buffer, sizeof(buffer), file) != NULL)
     {
-        char *token = strtok(buffer, ",");
+        char *token = strtok(buffer, ",\n");
         int colIndex = 0;
         while (token != NULL)
         {
             strncpy(df->columnas[colIndex].nombre, token, 30);
             colIndex++;
-            token = strtok(NULL, ",");
+            token = strtok(NULL, ",\n");
         }
     }
 
@@ -498,7 +498,7 @@ Dataframe *load(char *filename)
             }
 
             colIndex++;
-            token = strtok(NULL, ",");
+            token = strtok(NULL, ",\n");
         }
         df->numFilas++;
     }
@@ -588,13 +588,16 @@ void delcolumn(Dataframe *df, const char *nombreColumna)
 
     // usamos indice para poder recorrer  las columnas del dataframe
     int indice = -1;
-    for (int i = 0; i < df->numColumnas; i++)
+    for (int i = 0; i <= df->numColumnas; i++)
     { // bucle para recorrer las columnas
+    printf("Total columnas: %d\n", df->numColumnas);
         if (strcmp(df->columnas[i].nombre, nombreColumna) == 0)
         {               // compara el nombre de la columna con el introducido por parametro
-            indice = i; // guarda el indice de la columna de coindida con el nombre.
+            indice = i; // guarda el indice de la columna de coindida con el nombre.   
             break;
         }
+        
+        
     }
 
     if (indice == -1)
@@ -615,10 +618,10 @@ void delcolumn(Dataframe *df, const char *nombreColumna)
     df->numColumnas--;
 
     df->columnas = (Columna *)realloc(df->columnas, df->numColumnas * sizeof(Columna));
-    if (df->columnas == NULL && df->numColumnas > 0)
+    if (df->numColumnas > 0 && df->columnas == NULL)
     {
         establecer_color(ROJO);
-        printf("Error: Fallo al reasignar memoria para las columnas.\n");
+        printf("Error al reasignar memoria.\n");
         return;
     }
 }

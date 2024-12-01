@@ -139,15 +139,17 @@ int main()
                 establecer_color(ROJO);
                 printf("Falta el nombre de la columna.\n");
                 continue;
-            }
-            else
-            {
+            }else{
                 delcolumn(df, token);
                 printf("Columna eliminada correctamente.\n");
                 prompt(&lista, 0, aactivo);
                 imprimirDataframe(df);
             }
+
         }
+        
+        
+
 
         else
         {
