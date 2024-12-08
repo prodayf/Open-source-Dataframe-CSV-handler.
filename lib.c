@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <time.h>
 #include "lib.h"
+#include <ctype.h>
 #define MAX_FILAS 1000
 #define MAX_COLUMNAS 10
 #define MAX_STRING 100
@@ -272,16 +273,23 @@ void imprimirDataframe(Dataframe *df)
     {
         for (int j = 0; j < df->numColumnas; j++)
         {
-            // Suponiendo que la columna tiene un puntero a datos que almacena los valores
-            if (df->columnas[j].tipo == TEXTO)
+            if (df->columnas[j].esNulo[i] == 1)
             {
-                printf("%-30s", ((char **)df->columnas[j].datos)[i]); // Imprime datos de tipo texto
+                printf("%-30s", "NULL"); // Imprimir "NULL" para los valores nulos
             }
-            else if (df->columnas[j].tipo == NUMERICO)
+            else
             {
-                printf("%-30s", ((char **)df->columnas[j].datos)[i]); // Imprime datos numéricos como texto
+                // Suponiendo que la columna tiene un puntero a datos que almacena los valores
+                if (df->columnas[j].tipo == TEXTO)
+                {
+                    printf("%-30s", ((char **)df->columnas[j].datos)[i]); // Imprime datos de tipo texto
+                }
+                else if (df->columnas[j].tipo == NUMERICO)
+                {
+                    printf("%-30s", ((char **)df->columnas[j].datos)[i]); // Imprime datos numéricos como texto
+                }
+                // Agrega condiciones para otros tipos de datos si es necesario
             }
-            // Agrega condiciones para otros tipos de datos si es necesario
         }
         printf("\n"); // Salto de línea después de imprimir una fila
     }
@@ -316,7 +324,7 @@ void insertarDataframeLista(Lista *lista, Dataframe *df)
     lista->numDFs++;
 
     // printf("Dataframe insertado correctamente en la lista.\n");
-    // imprimirDataframe(df);
+    imprimirDataframe(df);
 }
 
 void imprimirLista(Lista *lista)
@@ -431,9 +439,8 @@ Dataframe *load(char *filename)
 
     char buffer[MAX_STRING];
     int numColumnas = 0;
-    int numFilas = 0;
 
-    // primero cuenta el numero coluumnas que hay.
+    // Contar el número de columnas leyendo la primera línea
     if (fgets(buffer, sizeof(buffer), file) != NULL)
     {
         char *token = strtok(buffer, ",\n");
@@ -444,24 +451,23 @@ Dataframe *load(char *filename)
         }
     }
 
-    // Allocate memory for the dataframe
+    // Reservar memoria para el Dataframe
     Dataframe *df = (Dataframe *)malloc(sizeof(Dataframe));
     df->numFilas = 0;
     df->numColumnas = numColumnas;
     df->columnas = (Columna *)malloc(numColumnas * sizeof(Columna));
 
-    // Allocate memory for each column's datos and esNulo
+    // Reservar memoria para los datos y los valores nulos de cada columna
     for (int i = 0; i < numColumnas; i++)
     {
-        df->columnas[i].datos = (char **)malloc(MAX_FILAS * sizeof(char *));
+        df->columnas[i].datos = (void *)malloc(MAX_FILAS * sizeof(char *)); // Almacenamos punteros a cadenas
         df->columnas[i].esNulo = (unsigned char *)malloc(MAX_FILAS * sizeof(unsigned char));
         df->columnas[i].numFilas = 0;
     }
 
-    // Reset file pointer to the beginning
-    rewind(file);
+    rewind(file); // Reiniciar el archivo
 
-    // Leer la primera línea para los nombres de las columnas
+    // Leer nombres de columnas
     if (fgets(buffer, sizeof(buffer), file) != NULL)
     {
         char *token = strtok(buffer, ",\n");
@@ -474,27 +480,32 @@ Dataframe *load(char *filename)
         }
     }
 
-    // Leer las filas restantes
+    // Leer filas restantes
     while (fgets(buffer, sizeof(buffer), file) != NULL)
     {
-        int colIndex = 0; // lo usamos para la referencia a cada array de columnas.
-        // es decir, si colindex es 0, entonces se refiere a la primera columna...
-        // esto es posible porque en la estructura de la columna se tiene un array de columnas.
-        char *token = strtok(buffer, ",");
+        int colIndex = 0;
+        char *token = strtok(buffer, ",\n");
         while (token != NULL && colIndex < numColumnas)
         {
-            // Detectar tipo y asignar a las columnas
+            // Detectar tipo
             TipoDato tipo = detectar_tipo(token);
             df->columnas[colIndex].tipo = tipo;
 
-            // Asignar valor a la columna correspondiente
+            // Manejar valores nulos
             if (df->columnas[colIndex].numFilas < MAX_FILAS)
             {
-                // Cast the datos field to char** and assign the value
-                ((char **)df->columnas[colIndex].datos)[df->columnas[colIndex].numFilas] = strdup(token);
-                df->columnas[colIndex].esNulo[df->columnas[colIndex].numFilas] = (strlen(token) == 0); // Marcar como nulo si está vacío
+                if (token == NULL || strlen(token) == 0 || strspn(token, " \t\n\r") == strlen(token)) // Token vacío o solo espacios
+                {
+                    df->columnas[colIndex].esNulo[df->columnas[colIndex].numFilas] = 1;
+                    ((char **)df->columnas[colIndex].datos)[df->columnas[colIndex].numFilas] = NULL;
+                }
+                else
+                {
+                    df->columnas[colIndex].esNulo[df->columnas[colIndex].numFilas] = 0;
+                    ((char **)df->columnas[colIndex].datos)[df->columnas[colIndex].numFilas] = strdup(token);
+                }
+
                 df->columnas[colIndex].numFilas++;
-                // con cada iteracion se plasman los datos en la tabla utilizando el colindex para saber a que columna pertenece.
             }
 
             colIndex++;
@@ -503,7 +514,14 @@ Dataframe *load(char *filename)
         df->numFilas++;
     }
 
-    imprimirDataframe(df);
+    // Crear índice
+    df->indice = (int *)malloc(df->numFilas * sizeof(int));
+    for (int i = 0; i < df->numFilas; i++)
+    {
+        df->indice[i] = i;
+    }
+
+    // imprimirDataframe(df); // Imprimir para verificar
     fclose(file);
     return df;
 }
@@ -590,14 +608,11 @@ void delcolumn(Dataframe *df, const char *nombreColumna)
     int indice = -1;
     for (int i = 0; i <= df->numColumnas; i++)
     { // bucle para recorrer las columnas
-    printf("Total columnas: %d\n", df->numColumnas);
         if (strcmp(df->columnas[i].nombre, nombreColumna) == 0)
         {               // compara el nombre de la columna con el introducido por parametro
-            indice = i; // guarda el indice de la columna de coindida con el nombre.   
+            indice = i; // guarda el indice de la columna de coindida con el nombre.
             break;
         }
-        
-        
     }
 
     if (indice == -1)
@@ -624,4 +639,164 @@ void delcolumn(Dataframe *df, const char *nombreColumna)
         printf("Error al reasignar memoria.\n");
         return;
     }
+}
+
+void view(Dataframe *df, int n)
+{
+    if (df == NULL)
+    {
+        establecer_color(ROJO);
+        printf("El dataframe es nulo\n");
+        return;
+    }
+
+    if (n == 0)
+    {
+        establecer_color(ROJO);
+        printf("El valor de n es inválido\n");
+        return;
+    }
+
+    // Ajustar n si es mayor al número de filas disponibles
+    if (n > df->numFilas)
+    {
+        n = df->numFilas;
+    }
+
+    establecer_color(VERDE);
+
+    // Imprimir encabezados
+    for (int i = 0; i < df->numColumnas; i++)
+    {
+        printf("%-15s", df->columnas[i].nombre);
+    }
+    printf("\n");
+
+    if (n > 0)
+    {
+        // Mostrar las primeras 'n' filas
+        for (int fila = 0; fila < n; fila++)
+        {
+            int actual = df->indice[fila];
+            for (int col = 0; col < df->numColumnas; col++)
+            {
+                char *valor = ((char **)df->columnas[col].datos)[actual];
+                printf("%-15s", valor ? valor : "#N/A");
+            }
+            printf("\n");
+        }
+    }
+    else
+    {
+        n = -n;
+
+        if (n > df->numFilas)
+        {
+            n = df->numFilas;
+        }
+        for (int i = df->numFilas - 1; i >= df->numFilas - n; i--)
+        {
+            for (int j = 0; j < df->numColumnas; j++)
+            {
+                if (df->columnas[j].esNulo[i] == 1)
+                {
+                    printf("%-30s", "NULL");
+                }
+                else
+                {
+                    printf("%-30s", ((char **)df->columnas[j].datos)[i]);
+                }
+            }
+            printf("\n");
+        }
+    }
+}
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+void delnull(Dataframe *df, const char *columnaNombre)
+{
+    if (df == NULL || columnaNombre == NULL)
+    {
+        printf("El DataFrame o el nombre de la columna es nulo.\n");
+        return;
+    }
+
+    // Buscar la columna indicada por nombre
+    int colIndex = -1;
+    for (int i = 0; i < df->numColumnas; i++)
+    {
+        if (strcmp(df->columnas[i].nombre, columnaNombre) == 0)
+        {
+            colIndex = i;
+            break;
+        }
+    }
+
+    if (colIndex == -1)
+    {
+        printf("Columna no encontrada.\n");
+        return;
+    }
+
+    // Contar el número de filas eliminadas
+    int filasEliminadas = 0;
+
+    // Crear un nuevo array de filas
+    int *filasParaEliminar = (int *)malloc(df->numFilas * sizeof(int));
+    int filasParaEliminarIndex = 0;
+
+    // Buscar las filas que contienen valores nulos en la columna
+    for (int i = 0; i < df->numFilas; i++)
+    {
+        if (df->columnas[colIndex].esNulo[i] == 1) // Si el valor es nulo
+        {
+            filasParaEliminar[filasParaEliminarIndex++] = i;
+        }
+    }
+
+    // Eliminar las filas encontradas
+    if (filasParaEliminarIndex > 0)
+    {
+        for (int i = 0; i < filasParaEliminarIndex; i++)
+        {
+            int filaEliminada = filasParaEliminar[i];
+
+            // Liberar la memoria de cada columna para la fila eliminada
+            for (int j = 0; j < df->numColumnas; j++)
+            {
+                if (df->columnas[j].esNulo[filaEliminada] == 0) // No es nulo
+                {
+                    free(((char **)df->columnas[j].datos)[filaEliminada]);
+                }
+            }
+
+            // Desplazar las filas para mantener el orden
+            for (int j = filaEliminada; j < df->numFilas - 1; j++)
+            {
+                for (int k = 0; k < df->numColumnas; k++)
+                {
+                    // Mover los datos y los indicadores de nulos
+                    ((char **)df->columnas[k].datos)[j] = ((char **)df->columnas[k].datos)[j + 1];
+                    df->columnas[k].esNulo[j] = df->columnas[k].esNulo[j + 1];
+                }
+            }
+
+            // Reducir el número de filas
+            df->numFilas--;
+            filasEliminadas++;
+        }
+
+        // Mostrar el número de filas eliminadas en verde
+        printf("\033[0;32mSe han eliminado %d filas.\033[0m\n", filasEliminadas);
+    }
+    else
+    {
+        printf("No se encontraron filas con valores nulos en la columna '%s'.\n", columnaNombre);
+    }
+
+    // Liberar memoria de las filas para eliminar
+    free(filasParaEliminar);
 }

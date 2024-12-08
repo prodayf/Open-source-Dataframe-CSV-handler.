@@ -108,7 +108,7 @@ int main()
             if (df != NULL)
             {
                 insertarDataframeLista(&lista, load(token));
-                imprimirLista(&lista);
+                //imprimirLista(&lista);
                 prompt(&lista, 0, aactivo);
             }
             printf(token);
@@ -144,6 +144,45 @@ int main()
                 printf("Columna eliminada correctamente.\n");
                 prompt(&lista, 0, aactivo);
                 imprimirDataframe(df);
+
+            }
+
+        }
+
+        else if (strncmp(comando, "view ", 4) == 0)
+        {
+            char *token = strtok(comando, " "); // Divide el comando inicial
+            token = strtok(NULL, " ");  // Intenta obtener el siguiente token (argumento)
+            int indice = atoi(token);
+            if (token == NULL)
+            {
+                establecer_color(ROJO);
+                printf("Falta el nombre de la columna.\n");
+                continue;
+            }else{
+                view(df, indice);
+                prompt(&lista, 0, aactivo);
+            
+
+            }
+
+        }
+
+        else if (strncmp(comando, "delnull ", 7) == 0)
+        {
+            char *token = strtok(comando, " "); // Divide el comando inicial
+            token = strtok(NULL, " ");  // Intenta obtener el siguiente token (argumento)
+            if (token == NULL)
+            {
+                establecer_color(ROJO);
+                printf("Falta el nombre de la columna.\n");
+                continue;
+            }else{
+                delnull(df, token);
+                imprimirDataframe(df);
+                prompt(&lista, 0, aactivo);
+            
+
             }
 
         }
