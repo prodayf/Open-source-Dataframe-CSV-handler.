@@ -186,6 +186,24 @@ int main()
             }
 
         }
+
+        else if (strncmp(comando, "save ", 4) == 0)
+        {
+            char *token = strtok(comando, " "); // Divide el comando inicial
+            token = strtok(NULL, " ");  // Intenta obtener el siguiente token (argumento)
+            if (token == NULL)
+            {
+                establecer_color(ROJO);
+                printf("falta el nombre del fichero\n");
+                continue;
+            }else{
+                save(df, token);
+                prompt(&lista, 0, aactivo);
+            
+
+            }
+
+        }
         
         
 

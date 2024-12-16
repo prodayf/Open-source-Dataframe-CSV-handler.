@@ -578,20 +578,33 @@ const char *obtener_nombre_tipo(TipoDato tipo)
     }
 }
 
-void meta(Dataframe *df)
-{
-    if (df == NULL)
-    {
+void meta(Dataframe *df) {
+    if (df == NULL) {
         establecer_color(ROJO);
         printf("El dataframe es nulo\n");
         return;
     }
 
-    for (int i = 0; i < df->numColumnas; i++)
-    {
+    for (int i = 0; i < df->numColumnas; i++) {
         establecer_color(VERDE);
-        printf("Columna %d: %s tipo datos:%s numero filas:%d\n", i, df->columnas[i].nombre, obtener_nombre_tipo(df->columnas[i].tipo), df->columnas[i].numFilas);
+        // Contar valores nulos en cada columna
+        int numNulos = 0;
+        for (int j = 0; j < df->columnas[i].numFilas; j++) {
+            if (df->columnas[i].esNulo[j] == 1) {
+                numNulos++;
+            }
+        }
+
+        // Mostrar información de la columna incluyendo el número de valores nulos
+        printf("Columna %d: %s tipo datos: %s numero filas: %d valores nulos: %d\n", 
+                i, 
+                df->columnas[i].nombre, 
+                obtener_nombre_tipo(df->columnas[i].tipo), 
+                df->columnas[i].numFilas,
+                numNulos);
     }
+
+
 }
 
 void delcolumn(Dataframe *df, const char *nombreColumna)
@@ -700,11 +713,11 @@ void view(Dataframe *df, int n)
             {
                 if (df->columnas[j].esNulo[i] == 1)
                 {
-                    printf("%-30s", "NULL");
+                    printf("%-15s", "NULL");
                 }
                 else
                 {
-                    printf("%-30s", ((char **)df->columnas[j].datos)[i]);
+                    printf("%-15s", ((char **)df->columnas[j].datos)[i]);
                 }
             }
             printf("\n");
@@ -737,66 +750,96 @@ void delnull(Dataframe *df, const char *columnaNombre)
 
     if (colIndex == -1)
     {
+        establecer_color(ROJO);
         printf("Columna no encontrada.\n");
         return;
     }
 
-    // Contar el número de filas eliminadas
     int filasEliminadas = 0;
 
-    // Crear un nuevo array de filas
-    int *filasParaEliminar = (int *)malloc(df->numFilas * sizeof(int));
-    int filasParaEliminarIndex = 0;
-
-    // Buscar las filas que contienen valores nulos en la columna
-    for (int i = 0; i < df->numFilas; i++)
+    // Recorremos las filas en orden inverso para evitar problemas con el desplazamiento de datos
+    for (int i = df->numFilas - 1; i >= 0; i--) //bucle alreves
     {
         if (df->columnas[colIndex].esNulo[i] == 1) // Si el valor es nulo
         {
-            filasParaEliminar[filasParaEliminarIndex++] = i;
-        }
-    }
-
-    // Eliminar las filas encontradas
-    if (filasParaEliminarIndex > 0)
-    {
-        for (int i = 0; i < filasParaEliminarIndex; i++)
-        {
-            int filaEliminada = filasParaEliminar[i];
-
-            // Liberar la memoria de cada columna para la fila eliminada
+            // Liberar memoria de cada columna para la fila eliminada
             for (int j = 0; j < df->numColumnas; j++)
             {
-                if (df->columnas[j].esNulo[filaEliminada] == 0) // No es nulo
+                if (df->columnas[j].esNulo[i] == 0) // No es nulo
                 {
-                    free(((char **)df->columnas[j].datos)[filaEliminada]);
+                    free(((char **)df->columnas[j].datos)[i]);
                 }
             }
 
-            // Desplazar las filas para mantener el orden
-            for (int j = filaEliminada; j < df->numFilas - 1; j++)
+            // Desplazar las filas hacia arriba para mantener el orden
+            for (int j = i; j < df->numFilas - 1; j++)
             {
                 for (int k = 0; k < df->numColumnas; k++)
                 {
-                    // Mover los datos y los indicadores de nulos
                     ((char **)df->columnas[k].datos)[j] = ((char **)df->columnas[k].datos)[j + 1];
                     df->columnas[k].esNulo[j] = df->columnas[k].esNulo[j + 1];
                 }
             }
 
-            // Reducir el número de filas
-            df->numFilas--;
             filasEliminadas++;
+            df->numFilas--; // Reducir el número de filas
         }
+    }
 
-        // Mostrar el número de filas eliminadas en verde
+    if (filasEliminadas > 0)
+    {
+        establecer_color(VERDE);
         printf("\033[0;32mSe han eliminado %d filas.\033[0m\n", filasEliminadas);
     }
     else
     {
+        establecer_color(ROJO);
         printf("No se encontraron filas con valores nulos en la columna '%s'.\n", columnaNombre);
     }
+}
 
-    // Liberar memoria de las filas para eliminar
-    free(filasParaEliminar);
+void save(Dataframe *df, const char *nombreFichero) {
+    if (df == NULL) {
+        establecer_color(ROJO);
+        printf("Error: No hay un dataframe activo.\n");
+        return;
+    }
+
+    FILE *archivo = fopen(nombreFichero, "w");
+    if (archivo == NULL) {
+        establecer_color(ROJO);
+        printf("Error: No se pudo abrir el archivo para escribir.\n");
+        return;
+    }
+
+    // Escribir los nombres de las columnas
+    for (int i = 0; i < df->numColumnas; i++) {
+        fprintf(archivo, "%s", df->columnas[i].nombre);
+        if (i < df->numColumnas - 1) {
+            fprintf(archivo, ",");
+        }
+    }
+    fprintf(archivo, "\n");
+
+    // Escribir los datos de las filas
+    for (int i = 0; i < df->numFilas; i++) {
+        for (int j = 0; j < df->numColumnas; j++) {
+            if (df->columnas[j].tipo == NUMERICO) {
+                // Si el tipo es NUMERICO, se asume que los datos son cadenas de caracteres que representan números
+                fprintf(archivo, "%s", ((char **)df->columnas[j].datos)[i]);
+            } else if (df->columnas[j].tipo == TEXTO) {
+                // Si el tipo es TEXTO, se asume que los datos son cadenas de caracteres
+                fprintf(archivo, "\"%s\"", ((char **)df->columnas[j].datos)[i]);
+            }
+            if (j < df->numColumnas - 1) {
+                fprintf(archivo, ",");
+            }
+        }
+        fprintf(archivo, "\n");
+    }
+
+    fclose(archivo);
+    establecer_color(VERDE);
+    printf("Dataframe guardado en el archivo '%s'.\n", nombreFichero);
+
 }

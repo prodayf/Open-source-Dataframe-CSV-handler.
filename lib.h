@@ -68,3 +68,4 @@ const char *obtener_nombre_tipo(TipoDato tipo);
 void delcolumn(Dataframe *df, const char *nombreColumna);
 void view(Dataframe *df, int indice);
 void delnull(Dataframe *df, const char *columnaNombre);
+void save(Dataframe *df, const char *nombreFichero);
