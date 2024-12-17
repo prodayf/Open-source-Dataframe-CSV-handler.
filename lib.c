@@ -13,7 +13,6 @@
 #define VERDE 10  // Color verde
 #define BLANCO 15 // Color blanco
 int activo = -1;
-
 // Función para establecer el color de la consola
 // Parámetros: pasa el color que esta definido en el main.c como variables globales.
 void establecer_color(int color)
@@ -29,7 +28,7 @@ int fechaValida(char *valor)
     // 2d/2d/4d es que se espera que el usuario ingrese la fecha en el formato dd/mm/yyyy
     if (sscanf(valor, "%2d/%2d/%4d", &dia, &mes, &anio) == 3)
     {
-        if (dia >= 1 && dia <= 31 && mes >= 1 && mes <= 12 && anio >= 1900 && anio <= 2021)
+        if (dia >= 1 && dia <= 31 && mes >= 1 && mes <= 12 && anio >= 1900 && anio <= 2999)
         {
             return 1;
         }
@@ -288,7 +287,12 @@ void imprimirDataframe(Dataframe *df)
                 {
                     printf("%-30s", ((char **)df->columnas[j].datos)[i]); // Imprime datos numéricos como texto
                 }
-                // Agrega condiciones para otros tipos de datos si es necesario
+                else if (df->columnas[j].tipo == FECHA)
+                {
+                    // Si la columna es de tipo FECHA, asumimos que los datos están almacenados como cadenas
+                    printf("%-30s", ((char **)df->columnas[j].datos)[i]); // Imprime datos de tipo fecha
+                }
+                // Agregar más condiciones para otros tipos de datos si es necesario
             }
         }
         printf("\n"); // Salto de línea después de imprimir una fila
@@ -578,33 +582,36 @@ const char *obtener_nombre_tipo(TipoDato tipo)
     }
 }
 
-void meta(Dataframe *df) {
-    if (df == NULL) {
+void meta(Dataframe *df)
+{
+    if (df == NULL)
+    {
         establecer_color(ROJO);
         printf("El dataframe es nulo\n");
         return;
     }
 
-    for (int i = 0; i < df->numColumnas; i++) {
+    for (int i = 0; i < df->numColumnas; i++)
+    {
         establecer_color(VERDE);
         // Contar valores nulos en cada columna
         int numNulos = 0;
-        for (int j = 0; j < df->columnas[i].numFilas; j++) {
-            if (df->columnas[i].esNulo[j] == 1) {
+        for (int j = 0; j < df->columnas[i].numFilas; j++)
+        {
+            if (df->columnas[i].esNulo[j] == 1)
+            {
                 numNulos++;
             }
         }
 
         // Mostrar información de la columna incluyendo el número de valores nulos
-        printf("Columna %d: %s tipo datos: %s numero filas: %d valores nulos: %d\n", 
-                i, 
-                df->columnas[i].nombre, 
-                obtener_nombre_tipo(df->columnas[i].tipo), 
-                df->columnas[i].numFilas,
-                numNulos);
+        printf("Columna %d: %s tipo datos: %s numero filas: %d valores nulos: %d\n",
+               i,
+               df->columnas[i].nombre,
+               obtener_nombre_tipo(df->columnas[i].tipo),
+               df->columnas[i].numFilas,
+               numNulos);
     }
-
-
 }
 
 void delcolumn(Dataframe *df, const char *nombreColumna)
@@ -725,10 +732,6 @@ void view(Dataframe *df, int n)
     }
 }
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 void delnull(Dataframe *df, const char *columnaNombre)
 {
     if (df == NULL || columnaNombre == NULL)
@@ -747,7 +750,6 @@ void delnull(Dataframe *df, const char *columnaNombre)
             break;
         }
     }
-
     if (colIndex == -1)
     {
         establecer_color(ROJO);
@@ -758,7 +760,7 @@ void delnull(Dataframe *df, const char *columnaNombre)
     int filasEliminadas = 0;
 
     // Recorremos las filas en orden inverso para evitar problemas con el desplazamiento de datos
-    for (int i = df->numFilas - 1; i >= 0; i--) //bucle alreves
+    for (int i = df->numFilas - 1; i >= 0; i--) // bucle alreves
     {
         if (df->columnas[colIndex].esNulo[i] == 1) // Si el valor es nulo
         {
@@ -798,48 +800,185 @@ void delnull(Dataframe *df, const char *columnaNombre)
     }
 }
 
-void save(Dataframe *df, const char *nombreFichero) {
-    if (df == NULL) {
-        establecer_color(ROJO);
-        printf("Error: No hay un dataframe activo.\n");
+void save(Dataframe *df, const char *nombreFichero)
+{
+    // Comprobar si hay un DataFrame activo
+    if (df == NULL)
+    {
+        printf("No hay un DataFrame activo.\n");
         return;
     }
 
+    // Abrir el archivo para escribir
     FILE *archivo = fopen(nombreFichero, "w");
-    if (archivo == NULL) {
-        establecer_color(ROJO);
-        printf("Error: No se pudo abrir el archivo para escribir.\n");
+    if (archivo == NULL)
+    {
+        printf("Error al abrir el archivo para guardar.\n");
         return;
     }
 
-    // Escribir los nombres de las columnas
-    for (int i = 0; i < df->numColumnas; i++) {
+    // Imprimir los nombres de las columnas (cabecera del CSV)
+    for (int i = 0; i < df->numColumnas; i++)
+    {
         fprintf(archivo, "%s", df->columnas[i].nombre);
-        if (i < df->numColumnas - 1) {
-            fprintf(archivo, ",");
+        if (i < df->numColumnas - 1)
+        {
+            fprintf(archivo, ","); // Separador de columnas
         }
     }
-    fprintf(archivo, "\n");
+    fprintf(archivo, "\n"); // Salto de línea después de la cabecera
 
-    // Escribir los datos de las filas
-    for (int i = 0; i < df->numFilas; i++) {
-        for (int j = 0; j < df->numColumnas; j++) {
-            if (df->columnas[j].tipo == NUMERICO) {
-                // Si el tipo es NUMERICO, se asume que los datos son cadenas de caracteres que representan números
-                fprintf(archivo, "%s", ((char **)df->columnas[j].datos)[i]);
-            } else if (df->columnas[j].tipo == TEXTO) {
-                // Si el tipo es TEXTO, se asume que los datos son cadenas de caracteres
-                fprintf(archivo, "\"%s\"", ((char **)df->columnas[j].datos)[i]);
+    // Imprimir los datos de cada fila
+    for (int i = 0; i < df->numFilas; i++)
+    {
+        for (int j = 0; j < df->numColumnas; j++)
+        {
+            if (df->columnas[j].esNulo[i] == 1)
+            {
+                fprintf(archivo, " "); // Imprimir "NULL" para los valores nulos
             }
-            if (j < df->numColumnas - 1) {
+            else
+            {
+                // Si la columna es de tipo TEXTO
+                if (df->columnas[j].tipo == TEXTO)
+                {
+                    fprintf(archivo, "%s", ((char **)df->columnas[j].datos)[i]);
+                }
+                // Si la columna es de tipo NUMERICO
+                else if (df->columnas[j].tipo == NUMERICO)
+                {
+                    fprintf(archivo, "%s", ((char **)df->columnas[j].datos)[i]); // Asumiendo que los datos numéricos se almacenan como texto
+                }
+                // Si la columna es de tipo FECHA
+                else if (df->columnas[j].tipo == FECHA)
+                {
+                    fprintf(archivo, "%s", ((char **)df->columnas[j].datos)[i]); // Asumiendo que las fechas están en formato de cadena
+                }
+            }
+
+            // Agregar la coma entre columnas, excepto después de la última columna
+            if (j < df->numColumnas - 1)
+            {
                 fprintf(archivo, ",");
             }
         }
-        fprintf(archivo, "\n");
+        fprintf(archivo, "\n"); // Salto de línea después de cada fila
     }
 
-    fclose(archivo);
     establecer_color(VERDE);
-    printf("Dataframe guardado en el archivo '%s'.\n", nombreFichero);
+    printf("Archivo Guardado\n");
+    // Cerrar el archivo
 
+    fclose(archivo);
+}
+
+void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaColumna)
+{
+    // Comprobar si hay un DataFrame activo
+    if (df == NULL)
+    {
+        printf("No hay un DataFrame activo.\n");
+        return;
+    }
+
+    // Comprobar si la columna indicada existe y es de tipo FECHA
+    int colIndex = -1;
+    for (int i = 0; i < df->numColumnas; i++)
+    {
+        if (strcmp(df->columnas[i].nombre, nombreColumna) == 0)
+        {
+            if (df->columnas[i].tipo == FECHA)
+            {
+                colIndex = i;
+                break;
+            }
+            else
+            {
+                printf("La columna %s no es de tipo FECHA.\n", nombreColumna);
+                return;
+            }
+        }
+    }
+
+    // Si la columna no existe
+    if (colIndex == -1)
+    {
+        printf("La columna %s no existe.\n", nombreColumna);
+        return;
+    }
+
+    // Comprobar si ya existe una columna con el mismo nombre para la nueva columna
+    for (int i = 0; i < df->numColumnas; i++)
+    {
+        if (strcmp(df->columnas[i].nombre, nombreNuevaColumna) == 0)
+        {
+            printf("Ya existe una columna con el nombre %s.\n", nombreNuevaColumna);
+            return;
+        }
+    }
+
+    // Aumentar el número de columnas para la nueva columna
+    df->numColumnas++;
+    df->columnas = realloc(df->columnas, df->numColumnas * sizeof(Columna));
+
+    // Inicializar la nueva columna
+    strcpy(df->columnas[df->numColumnas - 1].nombre, nombreNuevaColumna);
+    df->columnas[df->numColumnas - 1].tipo = TEXTO;
+    df->columnas[df->numColumnas - 1].numFilas = df->numFilas;
+    df->columnas[df->numColumnas - 1].esNulo = malloc(df->numFilas * sizeof(unsigned char));
+    df->columnas[df->numColumnas - 1].datos = malloc(df->numFilas * sizeof(char *));
+
+    // Inicializar los valores de la nueva columna
+    for (int i = 0; i < df->numFilas; i++)
+    {
+        // Si el valor de la fecha es nulo, asignar "#N/A"
+        if (df->columnas[colIndex].esNulo[i] == 1)
+        {
+            df->columnas[df->numColumnas - 1].esNulo[i] = 1;
+            ((char **)df->columnas[df->numColumnas - 1].datos)[i] = strdup("#N/A");
+        }
+        else
+        {
+            // Obtener la fecha de la columna existente (se asume que las fechas están como cadenas en formato "dd/mm/yyyy")
+            char *fecha = ((char **)df->columnas[colIndex].datos)[i];
+            int dia, mes, anio;
+
+            // Parsear la fecha
+            if (sscanf(fecha, "%2d/%2d/%4d", &dia, &mes, &anio) == 3)
+            {
+                // Determinar el trimestre en función del mes
+                char *trimestre;
+                if (mes >= 1 && mes <= 3)
+                {
+                    trimestre = "Q1";
+                }
+                else if (mes >= 4 && mes <= 6)
+                {
+                    trimestre = "Q2";
+                }
+                else if (mes >= 7 && mes <= 9)
+                {
+                    trimestre = "Q3";
+                }
+                else if (mes >= 10 && mes <= 12)
+                {
+                    trimestre = "Q4";
+                }
+                else
+                {
+                    trimestre = "#N/A"; // En caso de que el mes no sea válido
+                }
+
+                df->columnas[df->numColumnas - 1].esNulo[i] = 0;
+                ((char **)df->columnas[df->numColumnas - 1].datos)[i] = strdup(trimestre);
+            }
+            else
+            {
+                df->columnas[df->numColumnas - 1].esNulo[i] = 1;
+                ((char **)df->columnas[df->numColumnas - 1].datos)[i] = strdup("#N/A");
+            }
+        }
+    }
+
+    printf("Columna %s creada con éxito.\n", nombreNuevaColumna);
 }

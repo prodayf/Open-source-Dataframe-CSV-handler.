@@ -1,4 +1,3 @@
-
 #include <stddef.h> // Para NULL
 // Tipo enumerado para representar los diferentes tipos de datos en las columnas
 typedef enum
@@ -69,3 +68,4 @@ void delcolumn(Dataframe *df, const char *nombreColumna);
 void view(Dataframe *df, int indice);
 void delnull(Dataframe *df, const char *columnaNombre);
 void save(Dataframe *df, const char *nombreFichero);
+void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaColumna);

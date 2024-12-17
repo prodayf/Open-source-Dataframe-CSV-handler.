@@ -108,7 +108,7 @@ int main()
             if (df != NULL)
             {
                 insertarDataframeLista(&lista, load(token));
-                //imprimirLista(&lista);
+                // imprimirLista(&lista);
                 prompt(&lista, 0, aactivo);
             }
             printf(token);
@@ -139,74 +139,99 @@ int main()
                 establecer_color(ROJO);
                 printf("Falta el nombre de la columna.\n");
                 continue;
-            }else{
+            }
+            else
+            {
                 delcolumn(df, token);
                 printf("Columna eliminada correctamente.\n");
                 prompt(&lista, 0, aactivo);
                 imprimirDataframe(df);
-
             }
-
         }
 
         else if (strncmp(comando, "view ", 4) == 0)
         {
             char *token = strtok(comando, " "); // Divide el comando inicial
-            token = strtok(NULL, " ");  // Intenta obtener el siguiente token (argumento)
+            token = strtok(NULL, " ");          // Intenta obtener el siguiente token (argumento)
             int indice = atoi(token);
             if (token == NULL)
             {
                 establecer_color(ROJO);
                 printf("Falta el nombre de la columna.\n");
                 continue;
-            }else{
+            }
+            else
+            {
                 view(df, indice);
                 prompt(&lista, 0, aactivo);
-            
-
             }
-
         }
 
         else if (strncmp(comando, "delnull ", 7) == 0)
         {
             char *token = strtok(comando, " "); // Divide el comando inicial
-            token = strtok(NULL, " ");  // Intenta obtener el siguiente token (argumento)
+            token = strtok(NULL, " ");          // Intenta obtener el siguiente token (argumento)
             if (token == NULL)
             {
                 establecer_color(ROJO);
                 printf("Falta el nombre de la columna.\n");
                 continue;
-            }else{
+            }
+            else
+            {
                 delnull(df, token);
                 imprimirDataframe(df);
                 prompt(&lista, 0, aactivo);
-            
-
             }
-
         }
 
         else if (strncmp(comando, "save ", 4) == 0)
         {
             char *token = strtok(comando, " "); // Divide el comando inicial
-            token = strtok(NULL, " ");  // Intenta obtener el siguiente token (argumento)
+            token = strtok(NULL, " ");          // Intenta obtener el siguiente token (argumento)
             if (token == NULL)
             {
                 establecer_color(ROJO);
                 printf("falta el nombre del fichero\n");
                 continue;
-            }else{
+            }
+            else
+            {
                 save(df, token);
                 prompt(&lista, 0, aactivo);
-            
+            }
+        }
+        else if (strncmp(comando, "quarter ", 7) == 0)
+        {
+            char *token = strtok(comando, " "); // Divide el comando inicial (comando: "quarter")
+            token = strtok(NULL, " ");          // Obtiene el nombre de la columna existente
 
+            if (token == NULL)
+            {
+                establecer_color(ROJO);
+                printf("Falta el nombre de la columna existente (de tipo FECHA).\n");
+                continue;
             }
 
-        }
-        
-        
+            char *nombreColumna = token; // Almacena el nombre de la columna existente
 
+            token = strtok(NULL, " "); // Obtiene el nombre de la nueva columna
+            if (token == NULL)
+            {
+                establecer_color(ROJO);
+                printf("Falta el nombre de la nueva columna.\n");
+                continue;
+            }
+
+            char *nombreNuevaColumna = token; // Almacena el nombre de la nueva columna
+
+            // Llamada a la función quarter con los dos parámetros obtenidos
+            quarter(df, nombreColumna, nombreNuevaColumna);
+            imprimirDataframe(df);
+
+            // Llamar al prompt después de ejecutar el comando
+            prompt(&lista, 0, aactivo);
+        }
 
         else
         {
