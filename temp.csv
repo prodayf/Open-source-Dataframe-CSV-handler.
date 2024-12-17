@@ -1,8 +1,5 @@
-Nombre,Edad,Altura,Fecha,fecha2
-Aleks. yuliy, ,181,12/01/2001,Q1
-Maria,30,165,12/05/2001,Q2
-Juanintitintiti,22,170,12/06/2001,Q2
-Sofia,28, ,12/08/2001,Q3
-Carlos, ,175,12/06/2001,Q2
-Lucia,20,162,12/11/2001,Q4
-Pedro,27,180,12/09/2001,Q3
+Nombre,Edad,Fecha,fecha2
+Maria,30,12/05/2001,Q2
+Juanintitintiti,22,12/06/2001,Q2
+Lucia,20,12/11/2001,Q4
+Pedro,27,12/09/2001,Q3

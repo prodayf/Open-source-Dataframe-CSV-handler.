@@ -982,3 +982,31 @@ void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaCo
 
     printf("Columna %s creada con éxito.\n", nombreNuevaColumna);
 }
+
+void list(Lista *lista)
+{
+    // Verificar si la lista está vacía
+    if (lista == NULL || lista->primero == NULL)
+    {
+        printf("La lista está vacía.\n");
+        return;
+    }
+
+    int i = 1; // Contador para los DataFrames
+    Nodo *actual = lista->primero;
+
+    printf("Listado de DataFrames cargados en memoria:\n");
+
+    // Recorrer todos los nodos de la lista
+    while (actual != NULL)
+    {
+        if (actual->df != NULL)
+        {
+            printf("nombre_%d: %d filas, %d columnas\n", i, actual->df->numFilas, actual->df->numColumnas);
+            i++;
+        }
+        actual = actual->siguiente; // Mover al siguiente nodo
+    }
+
+    printf("Número total de DataFrames en la lista: %d\n", lista->numDFs);
+}

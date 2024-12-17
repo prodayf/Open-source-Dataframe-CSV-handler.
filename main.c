@@ -233,6 +233,23 @@ int main()
             prompt(&lista, 0, aactivo);
         }
 
+        else if (strncmp(comando, "list", 4) == 0)
+        {
+            char *token = strtok(comando, " "); // Divide el comando inicial
+            token = strtok(NULL, " ");          // Intenta obtener el siguiente token (argumento)
+
+            if (token != NULL)
+            {
+                // Si hay un token adicional, el comando es incorrecto
+                establecer_color(ROJO);
+                printf("El comando 'meta' no acepta argumentos.\n");
+                continue;
+            }
+
+            // Si no hay argumentos, ejecuta meta
+            list(&lista);
+        }
+
         else
         {
             establecer_color(ROJO);

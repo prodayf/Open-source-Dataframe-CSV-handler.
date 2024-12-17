@@ -69,3 +69,4 @@ void view(Dataframe *df, int indice);
 void delnull(Dataframe *df, const char *columnaNombre);
 void save(Dataframe *df, const char *nombreFichero);
 void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaColumna);
+void list(Lista *lista);
