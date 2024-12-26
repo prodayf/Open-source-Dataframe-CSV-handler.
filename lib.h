@@ -70,3 +70,5 @@ void delnull(Dataframe *df, const char *columnaNombre);
 void save(Dataframe *df, const char *nombreFichero);
 void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaColumna);
 void list(Lista *lista);
+void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *operador, const char *valor);
+void prompt2(Dataframe *df);

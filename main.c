@@ -32,7 +32,7 @@ int main()
     while (1)
     {
         establecer_color(BLANCO);
-        prompt(&lista, 0, aactivo);
+        prompt2(df);(&lista, 0, aactivo);
         printf("Ingrese un comando: \n");
 
         gets(comando);
@@ -109,7 +109,7 @@ int main()
             {
                 insertarDataframeLista(&lista, load(token));
                 // imprimirLista(&lista);
-                prompt(&lista, 0, aactivo);
+                prompt2(df);(&lista, 0, aactivo);
             }
             printf(token);
         }
@@ -144,7 +144,7 @@ int main()
             {
                 delcolumn(df, token);
                 printf("Columna eliminada correctamente.\n");
-                prompt(&lista, 0, aactivo);
+                prompt2(df);(&lista, 0, aactivo);
                 imprimirDataframe(df);
             }
         }
@@ -163,7 +163,7 @@ int main()
             else
             {
                 view(df, indice);
-                prompt(&lista, 0, aactivo);
+                prompt2(df);(&lista, 0, aactivo);
             }
         }
 
@@ -181,7 +181,7 @@ int main()
             {
                 delnull(df, token);
                 imprimirDataframe(df);
-                prompt(&lista, 0, aactivo);
+                prompt2(df);(&lista, 0, aactivo);
             }
         }
 
@@ -198,7 +198,7 @@ int main()
             else
             {
                 save(df, token);
-                prompt(&lista, 0, aactivo);
+                prompt2(df);(&lista, 0, aactivo);
             }
         }
         else if (strncmp(comando, "quarter ", 7) == 0)
@@ -229,8 +229,8 @@ int main()
             quarter(df, nombreColumna, nombreNuevaColumna);
             imprimirDataframe(df);
 
-            // Llamar al prompt después de ejecutar el comando
-            prompt(&lista, 0, aactivo);
+            // Llamar al prompt2(df); después de ejecutar el comando
+            prompt2(df);(&lista, 0, aactivo);
         }
 
         else if (strncmp(comando, "list", 4) == 0)
@@ -250,6 +250,52 @@ int main()
             list(&lista);
         }
 
+         else if (strncmp(comando, "filter", 6) == 0)
+        {
+            char *token = strtok(comando, " "); // Divide el comando inicial
+            token = strtok(NULL, " ");          // Obtiene el nombre de la columna
+
+            if (token == NULL)
+            {
+                establecer_color(ROJO);
+                printf("Error: Falta el nombre de la columna para filtrar.\n");
+                continue;
+            }
+            char nombre_columna[30];
+            strcpy(nombre_columna, token);
+
+            token = strtok(NULL, " "); // Obtiene el operador
+            if (token == NULL)
+            {
+                establecer_color(ROJO);
+                printf("Error: Falta el operador para filtrar.\n");
+                continue;
+            }
+            char operador[10];
+            strcpy(operador, token);
+
+            token = strtok(NULL, " "); // Obtiene el valor
+            if (token == NULL)
+            {
+                establecer_color(ROJO);
+                printf("Error: Falta el valor para filtrar.\n");
+                continue;
+            }
+            char valor[30];
+            strcpy(valor, token);
+
+            token = strtok(NULL, " "); // Verifica que no haya más parámetros
+            if (token != NULL)
+            {
+                establecer_color(ROJO);
+                printf("Error: Demasiados parámetros para el comando 'filter'.\n");
+                continue;
+            }
+
+            // Llamada a la función de filtrado
+            filter_dataframe(df, nombre_columna, operador, valor);
+        }
+    
         else
         {
             establecer_color(ROJO);

@@ -25,22 +25,23 @@ void establecer_color(int color)
 int fechaValida(char *valor)
 {
     int dia, mes, anio;
-    // 2d/2d/4d es que se espera que el usuario ingrese la fecha en el formato dd/mm/yyyy
-    if (sscanf(valor, "%2d/%2d/%4d", &dia, &mes, &anio) == 3)
+    if (sscanf(valor, "%4d/%2d/%2d", &anio, &mes, &dia) == 3)
     {
         if (dia >= 1 && dia <= 31 && mes >= 1 && mes <= 12 && anio >= 1900 && anio <= 2999)
         {
             return 1;
+            printf("Fecha valida\n");
         }
         else
         {
-            printf("Fecha no valida\n");
+            establecer_color(ROJO);
+            printf("Fecha no valida,EL PROGARAMA SE CERRARA. el formato es YYYY/MM/DD\n");
+            establecer_color(BLANCO);
+            exit(EXIT_FAILURE);
+            
         }
     }
-    else
-    {
-        printf("Fecha no valida\n");
-    }
+
 }
 
 TipoDato detectar_tipo(char *valor)
@@ -558,6 +559,18 @@ void prompt(Lista *lista, int indice, int activo)
     }
 }
 
+void prompt2(Dataframe *df){
+    if (df == NULL)
+    {
+        printf("[?]:>");
+        return;
+    }
+    else
+    {
+        printf("[df%d: %d,%d]:> ", activo, df->numFilas, df->numColumnas);
+    }
+}
+
 void procesarComando(char *comando)
 {
     char *token = strtok(comando, " ");
@@ -944,7 +957,7 @@ void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaCo
             int dia, mes, anio;
 
             // Parsear la fecha
-            if (sscanf(fecha, "%2d/%2d/%4d", &dia, &mes, &anio) == 3)
+            if (sscanf(fecha, "%4d/%2d/%2d", &anio, &mes, &dia) == 3)
             {
                 // Determinar el trimestre en función del mes
                 char *trimestre;
@@ -979,7 +992,7 @@ void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaCo
             }
         }
     }
-
+    
     printf("Columna %s creada con éxito.\n", nombreNuevaColumna);
 }
 
@@ -1009,4 +1022,103 @@ void list(Lista *lista)
     }
 
     printf("Número total de DataFrames en la lista: %d\n", lista->numDFs);
+}
+
+void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *operador, const char *valor) {
+    if (df == NULL) {
+        printf("\033[31mError: No hay un DataFrame activo.\033[0m\n");
+        return;
+    }
+
+    int columna = -1;
+
+    // Buscar la columna por nombre
+    for (int i = 0; i < df->numColumnas; i++) {
+        if (strcmp(df->columnas[i].nombre, nombre_columna) == 0) {
+            columna = i;
+            break;
+        }
+    }
+
+    if (columna == -1) {
+        printf("\033[31mError: La columna %s no existe.\033[0m\n", nombre_columna);
+        return;
+    }
+
+    // Determinar el tipo de la columna
+    TipoDato tipo = df->columnas[columna].tipo;
+
+    // Iterar de abajo hacia arriba para evitar problemas de índices
+    for (int i = df->numFilas - 1; i >= 0; i--) {
+        if (df->columnas[columna].esNulo[i] == 1) {
+            continue; // Ignorar valores nulos
+        }
+
+        char *dato = ((char **)df->columnas[columna].datos)[i];
+        int cumple_condicion = 0;
+
+        // Filtrar por tipo
+        if (tipo == TEXTO) {
+            // Operadores para texto
+            if (strcmp(operador, "eq") == 0) {
+                cumple_condicion = strcmp(dato, valor) == 0;
+            } else if (strcmp(operador, "neq") == 0) {
+                cumple_condicion = strcmp(dato, valor) != 0;
+            } else if (strcmp(operador, "contains") == 0) {
+                cumple_condicion = strstr(dato, valor) != NULL;
+            }
+        } else if (tipo == NUMERICO) {
+            // Operadores para números
+            double valor_fila = atof(dato);
+            double valor_numerico = atof(valor);
+
+            if (strcmp(operador, "eq") == 0) {
+                cumple_condicion = valor_fila == valor_numerico;
+            } else if (strcmp(operador, "neq") == 0) {
+                cumple_condicion = valor_fila != valor_numerico;
+            } else if (strcmp(operador, "gt") == 0) {
+                cumple_condicion = valor_fila > valor_numerico;
+            } else if (strcmp(operador, "lt") == 0) {
+                cumple_condicion = valor_fila < valor_numerico;
+            }
+        } else if (tipo == FECHA) {
+            // Operadores para fechas (formato YYYY/MM/DD)
+            if (!fechaValida(dato) || !fechaValida(valor)) {
+                printf("\033[31mError: Fecha no válida en la comparación.\033[0m\n");
+                return;
+            }
+
+            if (strcmp(operador, "eq") == 0) {
+                cumple_condicion = strcmp(dato, valor) == 0;
+            } else if (strcmp(operador, "neq") == 0) {
+                cumple_condicion = strcmp(dato, valor) != 0;
+            } else if (strcmp(operador, "gt") == 0) {
+                cumple_condicion = strcmp(dato, valor) > 0;
+            } else if (strcmp(operador, "lt") == 0) {
+                cumple_condicion = strcmp(dato, valor) < 0;
+            }
+        }
+
+        // Si no cumple la condición, eliminar la fila
+        if (!cumple_condicion) {
+            // Eliminar datos de cada columna
+            for (int k = 0; k < df->numColumnas; k++) {
+                free(((char **)df->columnas[k].datos)[i]);
+            }
+
+            // Desplazar los datos hacia arriba
+            for (int j = i; j < df->numFilas - 1; j++) {
+                df->indice[j] = df->indice[j + 1];
+                for (int k = 0; k < df->numColumnas; k++) {
+                    ((char **)df->columnas[k].datos)[j] = ((char **)df->columnas[k].datos)[j + 1];
+                    df->columnas[k].esNulo[j] = df->columnas[k].esNulo[j + 1];
+                }
+            }
+
+            df->numFilas--; // Reducir el conteo de filas
+        }
+    }
+
+    // Imprimir el DataFrame actualizado
+    imprimirDataframe(df);
 }
