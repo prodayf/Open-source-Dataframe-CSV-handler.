@@ -72,3 +72,5 @@ void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaCo
 void list(Lista *lista);
 void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *operador, const char *valor);
 void prompt2(Dataframe *df);
+void prefix(Dataframe *df, const char *nombre_columna, int n, const char *nombreNuevaColumna);
+void sort(Dataframe *df, const char *nombre_columna, const char *orden);

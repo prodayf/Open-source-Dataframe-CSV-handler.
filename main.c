@@ -32,7 +32,8 @@ int main()
     while (1)
     {
         establecer_color(BLANCO);
-        prompt2(df);(&lista, 0, aactivo);
+        prompt2(df);
+        (&lista, 0, aactivo);
         printf("Ingrese un comando: \n");
 
         gets(comando);
@@ -109,7 +110,8 @@ int main()
             {
                 insertarDataframeLista(&lista, load(token));
                 // imprimirLista(&lista);
-                prompt2(df);(&lista, 0, aactivo);
+                prompt2(df);
+                (&lista, 0, aactivo);
             }
             printf(token);
         }
@@ -144,7 +146,8 @@ int main()
             {
                 delcolumn(df, token);
                 printf("Columna eliminada correctamente.\n");
-                prompt2(df);(&lista, 0, aactivo);
+                prompt2(df);
+                (&lista, 0, aactivo);
                 imprimirDataframe(df);
             }
         }
@@ -163,7 +166,8 @@ int main()
             else
             {
                 view(df, indice);
-                prompt2(df);(&lista, 0, aactivo);
+                prompt2(df);
+                (&lista, 0, aactivo);
             }
         }
 
@@ -181,7 +185,8 @@ int main()
             {
                 delnull(df, token);
                 imprimirDataframe(df);
-                prompt2(df);(&lista, 0, aactivo);
+                prompt2(df);
+                (&lista, 0, aactivo);
             }
         }
 
@@ -198,7 +203,8 @@ int main()
             else
             {
                 save(df, token);
-                prompt2(df);(&lista, 0, aactivo);
+                prompt2(df);
+                (&lista, 0, aactivo);
             }
         }
         else if (strncmp(comando, "quarter ", 7) == 0)
@@ -230,7 +236,8 @@ int main()
             imprimirDataframe(df);
 
             // Llamar al prompt2(df); después de ejecutar el comando
-            prompt2(df);(&lista, 0, aactivo);
+            prompt2(df);
+            (&lista, 0, aactivo);
         }
 
         else if (strncmp(comando, "list", 4) == 0)
@@ -250,7 +257,7 @@ int main()
             list(&lista);
         }
 
-         else if (strncmp(comando, "filter", 6) == 0)
+        else if (strncmp(comando, "filter", 6) == 0)
         {
             char *token = strtok(comando, " "); // Divide el comando inicial
             token = strtok(NULL, " ");          // Obtiene el nombre de la columna
@@ -295,7 +302,102 @@ int main()
             // Llamada a la función de filtrado
             filter_dataframe(df, nombre_columna, operador, valor);
         }
-    
+        else if (strncmp(comando, "prefix", 6) == 0)
+        {
+            char *token = strtok(comando, " "); // Divide el comando inicial
+            token = strtok(NULL, " ");          // Obtiene el nombre de la columna
+
+            if (token == NULL)
+            {
+                establecer_color(ROJO);
+                printf("Error: Falta el nombre de la columna.\n");
+                continue;
+            }
+            char nombre_columna[30];
+            strcpy(nombre_columna, token);
+
+            token = strtok(NULL, " "); // Obtiene el valor de n
+            if (token == NULL)
+            {
+                establecer_color(ROJO);
+                printf("Error: Falta el valor de 'n'.\n");
+                continue;
+            }
+
+            int n = atoi(token); // Convertir el valor de 'n' a un entero
+            if (n <= 0)
+            {
+                establecer_color(ROJO);
+                printf("Error: El valor de 'n' debe ser mayor que 0.\n");
+                continue;
+            }
+
+            token = strtok(NULL, " "); // Obtiene el nombre de la nueva columna
+            if (token == NULL)
+            {
+                establecer_color(ROJO);
+                printf("Error: Falta el nombre de la nueva columna.\n");
+                continue;
+            }
+            char nueva_columna[30];
+            strcpy(nueva_columna, token);
+
+            token = strtok(NULL, " "); // Verifica que no haya más parámetros
+            if (token != NULL)
+            {
+                establecer_color(ROJO);
+                printf("Error: Demasiados parámetros para el comando 'prefix'.\n");
+                continue;
+            }
+
+            // Llamada a la función para agregar la columna con prefijos
+            prefix(df, nombre_columna, n, nueva_columna);
+            imprimirDataframe(df);
+        }
+        else if (strncmp(comando, "sort", 4) == 0)
+        {
+            char *token = strtok(comando, " "); // Divide el comando inicial
+            token = strtok(NULL, " ");          // Obtiene el nombre de la columna
+
+            if (token == NULL)
+            {
+                establecer_color(ROJO);
+                printf("Error: Falta el nombre de la columna.\n");
+                continue;
+            }
+
+            char nombre_columna[30];
+            strcpy(nombre_columna, token);
+
+            token = strtok(NULL, " "); // Obtiene el orden (asc o des, opcional)
+            char orden[4] = "asc";     // Ascendente por defecto
+            if (token != NULL)
+            {
+                if (strcmp(token, "asc") == 0 || strcmp(token, "des") == 0)
+                {
+                    strcpy(orden, token);
+                }
+                else
+                {
+                    establecer_color(ROJO);
+                    printf("Error: Orden inválido. Use 'asc' o 'des'.\n");
+                    continue;
+                }
+            }
+
+            token = strtok(NULL, " "); // Verifica que no haya más parámetros
+            if (token != NULL)
+            {
+                establecer_color(ROJO);
+                printf("Error: Demasiados parámetros para el comando 'sort'.\n");
+                continue;
+            }
+
+            // Llamada a la función para ordenar el DataFrame
+            sort(df, nombre_columna, orden);
+            imprimirDataframe(df);
+        }
+
         else
         {
             establecer_color(ROJO);

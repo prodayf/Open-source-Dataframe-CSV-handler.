@@ -38,10 +38,8 @@ int fechaValida(char *valor)
             printf("Fecha no valida,EL PROGARAMA SE CERRARA. el formato es YYYY/MM/DD\n");
             establecer_color(BLANCO);
             exit(EXIT_FAILURE);
-            
         }
     }
-
 }
 
 TipoDato detectar_tipo(char *valor)
@@ -279,6 +277,7 @@ void imprimirDataframe(Dataframe *df)
             }
             else
             {
+            
                 // Suponiendo que la columna tiene un puntero a datos que almacena los valores
                 if (df->columnas[j].tipo == TEXTO)
                 {
@@ -299,6 +298,60 @@ void imprimirDataframe(Dataframe *df)
         printf("\n"); // Salto de línea después de imprimir una fila
     }
 }
+// void imprimirDataframe(Dataframe *df)
+// {
+//     // Comprobar si el DataFrame es nulo
+//     if (df == NULL)
+//     {
+//         printf("El DataFrame es nulo.\n");
+//         return;
+//     }
+
+//     // Imprimir encabezado del índice
+//     printf("%-10s", "Índice");
+
+//     // Imprimir encabezados de las columnas
+//     for (int i = 0; i < df->numColumnas; i++)
+//     {
+//         printf("%-30s", df->columnas[i].nombre);
+//     }
+//     printf("\n"); // Salto de línea después de imprimir los encabezados
+
+//     // Imprimir los datos de cada fila
+//     for (int i = 0; i < df->numFilas; i++)
+//     {
+//         // Imprimir el índice de la fila actual
+//         printf("%-10d", df->indice[i]); // Índice correspondiente a la fila actual
+
+//         // Imprimir los datos de cada columna
+//         for (int j = 0; j < df->numColumnas; j++)
+//         {
+//             if (df->columnas[j].esNulo[i] == 1)
+//             {
+//                 printf("%-30s", "NULL"); // Imprimir "NULL" para los valores nulos
+//             }
+//             else
+//             {
+//                 // Suponiendo que la columna tiene un puntero a datos que almacena los valores
+//                 if (df->columnas[j].tipo == TEXTO)
+//                 {
+//                     printf("%-30s", ((char **)df->columnas[j].datos)[i]); // Imprime datos de tipo texto
+//                 }
+//                 else if (df->columnas[j].tipo == NUMERICO)
+//                 {
+//                     printf("%-30s", ((char **)df->columnas[j].datos)[i]); // Imprime datos numéricos como texto
+//                 }
+//                 else if (df->columnas[j].tipo == FECHA)
+//                 {
+//                     // Si la columna es de tipo FECHA, asumimos que los datos están almacenados como cadenas
+//                     printf("%-30s", ((char **)df->columnas[j].datos)[i]); // Imprime datos de tipo fecha
+//                 }
+//                 // Agregar más condiciones para otros tipos de datos si es necesario
+//             }
+//         }
+//         printf("\n"); // Salto de línea después de imprimir una fila
+//     }
+// }
 
 void inicializarLista(Lista *lista)
 {
@@ -559,7 +612,8 @@ void prompt(Lista *lista, int indice, int activo)
     }
 }
 
-void prompt2(Dataframe *df){
+void prompt2(Dataframe *df)
+{
     if (df == NULL)
     {
         printf("[?]:>");
@@ -992,7 +1046,7 @@ void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaCo
             }
         }
     }
-    
+
     printf("Columna %s creada con éxito.\n", nombreNuevaColumna);
 }
 
@@ -1024,8 +1078,10 @@ void list(Lista *lista)
     printf("Número total de DataFrames en la lista: %d\n", lista->numDFs);
 }
 
-void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *operador, const char *valor) {
-    if (df == NULL) {
+void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *operador, const char *valor)
+{
+    if (df == NULL)
+    {
         printf("\033[31mError: No hay un DataFrame activo.\033[0m\n");
         return;
     }
@@ -1033,14 +1089,17 @@ void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *ope
     int columna = -1;
 
     // Buscar la columna por nombre
-    for (int i = 0; i < df->numColumnas; i++) {
-        if (strcmp(df->columnas[i].nombre, nombre_columna) == 0) {
+    for (int i = 0; i < df->numColumnas; i++)
+    {
+        if (strcmp(df->columnas[i].nombre, nombre_columna) == 0)
+        {
             columna = i;
             break;
         }
     }
 
-    if (columna == -1) {
+    if (columna == -1)
+    {
         printf("\033[31mError: La columna %s no existe.\033[0m\n", nombre_columna);
         return;
     }
@@ -1049,8 +1108,10 @@ void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *ope
     TipoDato tipo = df->columnas[columna].tipo;
 
     // Iterar de abajo hacia arriba para evitar problemas de índices
-    for (int i = df->numFilas - 1; i >= 0; i--) {
-        if (df->columnas[columna].esNulo[i] == 1) {
+    for (int i = df->numFilas - 1; i >= 0; i--)
+    {
+        if (df->columnas[columna].esNulo[i] == 1)
+        {
             continue; // Ignorar valores nulos
         }
 
@@ -1058,58 +1119,87 @@ void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *ope
         int cumple_condicion = 0;
 
         // Filtrar por tipo
-        if (tipo == TEXTO) {
+        if (tipo == TEXTO)
+        {
             // Operadores para texto
-            if (strcmp(operador, "eq") == 0) {
+            if (strcmp(operador, "eq") == 0)
+            {
                 cumple_condicion = strcmp(dato, valor) == 0;
-            } else if (strcmp(operador, "neq") == 0) {
+            }
+            else if (strcmp(operador, "neq") == 0)
+            {
                 cumple_condicion = strcmp(dato, valor) != 0;
-            } else if (strcmp(operador, "contains") == 0) {
+            }
+            else if (strcmp(operador, "contains") == 0)
+            {
                 cumple_condicion = strstr(dato, valor) != NULL;
             }
-        } else if (tipo == NUMERICO) {
+        }
+        else if (tipo == NUMERICO)
+        {
             // Operadores para números
             double valor_fila = atof(dato);
             double valor_numerico = atof(valor);
 
-            if (strcmp(operador, "eq") == 0) {
+            if (strcmp(operador, "eq") == 0)
+            {
                 cumple_condicion = valor_fila == valor_numerico;
-            } else if (strcmp(operador, "neq") == 0) {
+            }
+            else if (strcmp(operador, "neq") == 0)
+            {
                 cumple_condicion = valor_fila != valor_numerico;
-            } else if (strcmp(operador, "gt") == 0) {
+            }
+            else if (strcmp(operador, "gt") == 0)
+            {
                 cumple_condicion = valor_fila > valor_numerico;
-            } else if (strcmp(operador, "lt") == 0) {
+            }
+            else if (strcmp(operador, "lt") == 0)
+            {
                 cumple_condicion = valor_fila < valor_numerico;
             }
-        } else if (tipo == FECHA) {
+        }
+        else if (tipo == FECHA)
+        {
             // Operadores para fechas (formato YYYY/MM/DD)
-            if (!fechaValida(dato) || !fechaValida(valor)) {
+            if (!fechaValida((char *)dato) || !fechaValida((char *)valor))
+            {
                 printf("\033[31mError: Fecha no válida en la comparación.\033[0m\n");
                 return;
             }
 
-            if (strcmp(operador, "eq") == 0) {
+            if (strcmp(operador, "eq") == 0)
+            {
                 cumple_condicion = strcmp(dato, valor) == 0;
-            } else if (strcmp(operador, "neq") == 0) {
+            }
+            else if (strcmp(operador, "neq") == 0)
+            {
                 cumple_condicion = strcmp(dato, valor) != 0;
-            } else if (strcmp(operador, "gt") == 0) {
+            }
+            else if (strcmp(operador, "gt") == 0)
+            {
                 cumple_condicion = strcmp(dato, valor) > 0;
-            } else if (strcmp(operador, "lt") == 0) {
+            }
+            else if (strcmp(operador, "lt") == 0)
+            {
                 cumple_condicion = strcmp(dato, valor) < 0;
             }
         }
 
         // Si no cumple la condición, eliminar la fila
-        if (!cumple_condicion) {
+        if (!cumple_condicion)
+        {
             // Eliminar datos de cada columna
-            for (int k = 0; k < df->numColumnas; k++) {
+            for (int k = 0; k < df->numColumnas; k++)
+            {
                 free(((char **)df->columnas[k].datos)[i]);
             }
 
             // Desplazar los datos hacia arriba
-            for (int j = i; j < df->numFilas - 1; j++) {
+            for (int j = i; j < df->numFilas - 1; j++)
+            {
                 df->indice[j] = df->indice[j + 1];
-                for (int k = 0; k < df->numColumnas; k++) {
+                for (int k = 0; k < df->numColumnas; k++)
+                {
                     ((char **)df->columnas[k].datos)[j] = ((char **)df->columnas[k].datos)[j + 1];
                     df->columnas[k].esNulo[j] = df->columnas[k].esNulo[j + 1];
                 }
@@ -1121,4 +1211,229 @@ void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *ope
 
     // Imprimir el DataFrame actualizado
     imprimirDataframe(df);
+}
+
+void prefix(Dataframe *df, const char *nombre_columna, int n, const char *nombreNuevaColumna)
+{
+    // Comprobar si hay un DataFrame activo
+    if (df == NULL)
+    {
+        printf("No hay un DataFrame activo.\n");
+        return;
+    }
+
+    // Verificar que el número de caracteres 'n' es válido
+    if (n <= 0)
+    {
+        printf("Error: El número de caracteres debe ser mayor a 0.\n");
+        return;
+    }
+
+    // Comprobar si la columna indicada existe y es de tipo TEXTO
+    int colIndex = -1;
+    for (int i = 0; i < df->numColumnas; i++)
+    {
+        if (strcmp(df->columnas[i].nombre, nombre_columna) == 0) // Comparación de nombre de columna
+        {
+            if (df->columnas[i].tipo == TEXTO)
+            {
+                colIndex = i;
+                break;
+            }
+            else
+            {
+                printf("La columna %s no es de tipo TEXTO.\n", nombre_columna);
+                return;
+            }
+        }
+    }
+
+    // Si la columna no existe
+    if (colIndex == -1)
+    {
+        printf("La columna %s no existe.\n", nombre_columna);
+        return;
+    }
+
+    // Comprobar si ya existe una columna con el nombre de la nueva columna
+    for (int i = 0; i < df->numColumnas; i++)
+    {
+        if (strcmp(df->columnas[i].nombre, nombreNuevaColumna) == 0)
+        {
+            printf("Ya existe una columna con el nombre %s.\n", nombreNuevaColumna);
+            return;
+        }
+    }
+
+    // Aumentar el número de columnas para la nueva columna
+    df->numColumnas++;
+    df->columnas = realloc(df->columnas, df->numColumnas * sizeof(Columna));
+
+    // Inicializar la nueva columna
+    strcpy(df->columnas[df->numColumnas - 1].nombre, nombreNuevaColumna);
+    df->columnas[df->numColumnas - 1].tipo = TEXTO;
+    df->columnas[df->numColumnas - 1].numFilas = df->numFilas;
+    df->columnas[df->numColumnas - 1].esNulo = malloc(df->numFilas * sizeof(unsigned char));
+    df->columnas[df->numColumnas - 1].datos = malloc(df->numFilas * sizeof(char *));
+
+    // Inicializar los valores de la nueva columna
+    for (int i = 0; i < df->numFilas; i++)
+    {
+        // Si el valor de origen es nulo o su longitud es menor que 'n', asignar "#N/A"
+        if (df->columnas[colIndex].esNulo[i] || strlen(((char **)df->columnas[colIndex].datos)[i]) < n)
+        {
+            df->columnas[df->numColumnas - 1].esNulo[i] = 1;
+            ((char **)df->columnas[df->numColumnas - 1].datos)[i] = strdup("#N/A");
+        }
+        else
+        {
+            // Copiar el prefijo de longitud 'n' desde la columna origen
+            char *datoOrigen = ((char **)df->columnas[colIndex].datos)[i];
+            df->columnas[df->numColumnas - 1].esNulo[i] = 0;
+            ((char **)df->columnas[df->numColumnas - 1].datos)[i] = malloc((n + 1) * sizeof(char));
+            strncpy(((char **)df->columnas[df->numColumnas - 1].datos)[i], datoOrigen, n);
+            ((char **)df->columnas[df->numColumnas - 1].datos)[i][n] = '\0';
+        }
+    }
+
+    printf("Columna %s creada con éxito.\n", nombreNuevaColumna);
+}
+
+
+
+void sort(Dataframe *df, const char *nombre_columna, const char *orden)
+{
+    // Comprobar si hay un DataFrame activo
+    if (df == NULL)
+    {
+        printf("\033[1;31mNo hay un DataFrame activo.\033[0m\n");
+        return;
+    }
+
+    // Validar el número de parámetros y el orden
+    if (nombre_columna == NULL || (orden != NULL && strcmp(orden, "asc") != 0 && strcmp(orden, "des") != 0))
+    {
+        printf("\033[1;31mParámetros mal escritos o incorrectos.\033[0m\n");
+        return;
+    }
+
+    // Comprobar si la columna indicada existe
+    int colIndex = -1;
+    for (int i = 0; i < df->numColumnas; i++)
+    {
+        if (strcmp(df->columnas[i].nombre, nombre_columna) == 0)
+        {
+            colIndex = i;
+            break;
+        }
+    }
+
+    if (colIndex == -1)
+    {
+        printf("\033[1;31mLa columna %s no existe.\033[0m\n", nombre_columna);
+        return;
+    }
+
+    // Determinar el tipo de ordenación: ascendente (por defecto) o descendente
+    int ascending = 1; // Ascendente por defecto
+    if (orden != NULL && strcmp(orden, "des") == 0)
+    {
+        ascending = 0;
+    }
+
+    // Ordenar filas teniendo en cuenta los valores NULL
+    for (int i = 0; i < df->numFilas - 1; i++)
+    {
+        for (int j = i + 1; j < df->numFilas; j++)
+        {
+            // Verificar si los valores son NULL
+            int isNull1 = df->columnas[colIndex].esNulo[i];
+            int isNull2 = df->columnas[colIndex].esNulo[j];
+
+            // Lógica para manejar valores NULL
+            if (isNull1 && !isNull2)
+            {
+                if (ascending)
+                {
+                    // Si es ascendente, los NULL van al principio
+                    continue;
+                }
+                else
+                {
+                    // Si es descendente, intercambiar para que NULL esté al final
+                    for (int k = 0; k < df->numColumnas; k++)
+                    {
+                        char **datos = (char **)df->columnas[k].datos;
+                        char *temp = datos[i];
+                        datos[i] = datos[j];
+                        datos[j] = temp;
+
+                        // Intercambiar también el estado NULL
+                        unsigned char tempNull = df->columnas[k].esNulo[i];
+                        df->columnas[k].esNulo[i] = df->columnas[k].esNulo[j];
+                        df->columnas[k].esNulo[j] = tempNull;
+                    }
+                }
+            }
+            else if (!isNull1 && isNull2)
+            {
+                if (ascending)
+                {
+                    // Si es ascendente, intercambiar para que NULL esté al principio
+                    for (int k = 0; k < df->numColumnas; k++)
+                    {
+                        char **datos = (char **)df->columnas[k].datos;
+                        char *temp = datos[i];
+                        datos[i] = datos[j];
+                        datos[j] = temp;
+
+                        // Intercambiar también el estado NULL
+                        unsigned char tempNull = df->columnas[k].esNulo[i];
+                        df->columnas[k].esNulo[i] = df->columnas[k].esNulo[j];
+                        df->columnas[k].esNulo[j] = tempNull;
+                    }
+                }
+                continue;
+            }
+
+            // Si ninguno es NULL, comparar normalmente
+            if (!isNull1 && !isNull2)
+            {
+                char *valor1 = ((char **)df->columnas[colIndex].datos)[i];
+                char *valor2 = ((char **)df->columnas[colIndex].datos)[j];
+
+                int comparison;
+                if (df->columnas[colIndex].tipo == NUMERICO)
+                {
+                    double num1 = atof(valor1);
+                    double num2 = atof(valor2);
+                    comparison = (num1 > num2) - (num1 < num2);
+                }
+                else
+                {
+                    comparison = strcmp(valor1, valor2);
+                }
+
+                // Determinar si se debe intercambiar según el orden especificado
+                if ((ascending && comparison > 0) || (!ascending && comparison < 0))
+                {
+                    for (int k = 0; k < df->numColumnas; k++)
+                    {
+                        char **datos = (char **)df->columnas[k].datos;
+                        char *temp = datos[i];
+                        datos[i] = datos[j];
+                        datos[j] = temp;
+
+                        // Intercambiar también el estado NULL
+                        unsigned char tempNull = df->columnas[k].esNulo[i];
+                        df->columnas[k].esNulo[i] = df->columnas[k].esNulo[j];
+                        df->columnas[k].esNulo[j] = tempNull;
+                    }
+                }
+            }
+        }
+    }
+
+    printf("Las filas se han ordenado correctamente por la columna %s en orden %s.\n",
+           nombre_columna, ascending ? "ascendente" : "descendente");
 }
