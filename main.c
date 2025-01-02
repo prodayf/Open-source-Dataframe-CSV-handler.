@@ -96,7 +96,7 @@ int main()
 
         else if (strncmp(comando, "load", 4) == 0)
         {
-
+            prompt2(df);
             char *token = strtok(comando, " ");
             token = strtok(NULL, " ");
             if (token == NULL)

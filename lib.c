@@ -1011,7 +1011,7 @@ void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaCo
             int dia, mes, anio;
 
             // Parsear la fecha
-            if (sscanf(fecha, "%4d/%2d/%2d", &anio, &mes, &dia) == 3)
+            if (sscanf(fecha, "%4d-%2d-%2d", &anio, &mes, &dia) == 3)
             {
                 // Determinar el trimestre en función del mes
                 char *trimestre;
@@ -1069,7 +1069,9 @@ void list(Lista *lista)
     {
         if (actual->df != NULL)
         {
+            establecer_color(VERDE);
             printf("nombre_%d: %d filas, %d columnas\n", i, actual->df->numFilas, actual->df->numColumnas);
+
             i++;
         }
         actual = actual->siguiente; // Mover al siguiente nodo
