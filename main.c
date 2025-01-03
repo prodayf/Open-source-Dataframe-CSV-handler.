@@ -9,6 +9,7 @@
 int aactivo = -1;
 int main()
 {
+    int contador = 0;
     char comando[100];
     char *texto = "pepe";                          // Valor numérico
     char *numeros[] = {"23", "45", "67"};          // Datos para columna NUMERICO
@@ -110,8 +111,10 @@ int main()
             {
                 insertarDataframeLista(&lista, load(token));
                 // imprimirLista(&lista);
+                defaultName(df, numeroDataframes(&lista));
                 prompt2(df);
-                (&lista, 0, aactivo);
+                // (&lista, 0, aactivo);
+                numeroDataframes(&lista);
             }
             printf(token);
         }
@@ -397,6 +400,35 @@ int main()
             sort(df, nombre_columna, orden);
             imprimirDataframe(df);
         }
+        else if (strncmp(comando, "name", 4) == 0)
+        {
+            char *token = strtok(comando, " "); // Divide el comando inicial
+            token = strtok(NULL, " ");          // Obtiene el nuevo nombre
+
+            if (token == NULL)
+            {
+                printf("Error: Debes proporcionar un nombre.\n");
+            }
+            else if (strlen(token) > 50)
+            {
+                printf("Error: El nombre no puede exceder 50 caracteres.\n");
+            }
+            else
+            {
+                name(df, token);
+                imprimirDataframe(df);
+            }
+
+             token = strtok(NULL, " "); // Verifica que no haya más parámetros
+            if (token != NULL)
+            {
+                establecer_color(ROJO);
+                printf("Error: Demasiados parámetros para el comando 'name'.\n");
+                continue;
+            }
+        }
+
+        
 
         else
         {

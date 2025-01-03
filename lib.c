@@ -616,14 +616,16 @@ void prompt2(Dataframe *df)
 {
     if (df == NULL)
     {
-        printf("[?]:>");
+        printf("[?]:> ");
         return;
     }
     else
     {
-        printf("[df%d: %d,%d]:> ", activo, df->numFilas, df->numColumnas);
+        // Usar el nombre del DataFrame en el prompt
+        printf("[%s: %d,%d]:> ", df->nombre, df->numFilas, df->numColumnas);
     }
 }
+
 
 void procesarComando(char *comando)
 {
@@ -1439,3 +1441,34 @@ void sort(Dataframe *df, const char *nombre_columna, const char *orden)
     printf("Las filas se han ordenado correctamente por la columna %s en orden %s.\n",
            nombre_columna, ascending ? "ascendente" : "descendente");
 }
+
+int numeroDataframes(Lista *lista)
+{
+    if (lista == NULL)
+    {
+        return 0;
+    }else{
+        printf("Numero de Dataframes: %d\n", lista->numDFs);
+    }
+    return lista->numDFs;
+}
+
+void defaultName(Dataframe *df, int numeroDataframes)
+{
+    char nombre[40];
+    sprintf(nombre, "df%d", numeroDataframes);
+    strcpy(df->nombre, nombre);
+}
+
+void name(Dataframe *df, const char *nombre)
+{
+    if (df == NULL)
+    {
+        printf("No hay un DataFrame activo.\n");
+        return;
+    }
+
+    strcpy(df->nombre, nombre);
+    printf("Nombre asignado: %s\n", df->nombre);
+}
+

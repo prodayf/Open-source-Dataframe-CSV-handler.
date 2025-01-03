@@ -20,6 +20,7 @@ typedef struct
 // Estructura para representar el dataframe como un conjunto de columnas
 typedef struct
 {
+    char nombre[51];   // Nombre del dataframe
     Columna *columnas; // Array de columnas (con tipos de datos distintos)
     int numColumnas;   // Número de columnas en el dataframe
     int numFilas;      // Número de filas (igual para todas las columnas)
@@ -74,3 +75,6 @@ void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *ope
 void prompt2(Dataframe *df);
 void prefix(Dataframe *df, const char *nombre_columna, int n, const char *nombreNuevaColumna);
 void sort(Dataframe *df, const char *nombre_columna, const char *orden);
+int numeroDataframes(Lista *lista);
+void defaultName(Dataframe *df, int numeroDataframes);
+void name(Dataframe *df, const char *nombre);
