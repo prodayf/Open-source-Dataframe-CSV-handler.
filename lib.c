@@ -1097,6 +1097,53 @@ void list(Lista *lista, Dataframe *df)
     printf("\nNúmero total de DataFrames en la lista: %d\n", lista->numDFs);
 }
 
+void list2(Lista *lista)
+{
+    // Verificar si la lista está vacía
+    if (lista == NULL || lista->primero == NULL)
+    {
+        printf("La lista está vacía.\n");
+        return;
+    }
+
+    int totalDFs = lista->numDFs;
+    Nodo *actual = lista->primero;
+    Nodo **nodos = malloc(totalDFs * sizeof(Nodo *));
+
+    if (nodos == NULL)
+    {
+        printf("Error al asignar memoria para la lista invertida.\n");
+        return;
+    }
+
+    // Guardar los nodos en un array
+    int i = 0;
+    while (actual != NULL)
+    {
+        nodos[i++] = actual;
+        actual = actual->siguiente;
+    }
+
+    printf("Listado de DataFrames cargados en memoria (orden inverso):\n");
+
+    // Imprimir en orden inverso
+    for (int j = totalDFs - 1; j >= 0; j--)
+    {
+        Dataframe *df = nodos[j]->df;
+        if (df != NULL)
+        {
+            printf("DataFrame %d: Nombre: %s, %d filas, %d columnas\n",
+                   j + 1, df->nombre, df->numFilas, df->numColumnas);
+        }
+        else
+        {
+            printf("Nodo sin DataFrame.\n");
+        }
+    }
+
+    free(nodos);
+    printf("\nNúmero total de DataFrames en la lista: %d\n", totalDFs);
+}
 void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *operador, const char *valor)
 {
     if (df == NULL)
@@ -1421,32 +1468,46 @@ void sort(Dataframe *df, const char *nombre_columna, const char *orden)
                 char *valor1 = ((char **)df->columnas[colIndex].datos)[i];
                 char *valor2 = ((char **)df->columnas[colIndex].datos)[j];
 
-                int comparison;
                 if (df->columnas[colIndex].tipo == NUMERICO)
                 {
+                    // Comparar valores numéricos directamente
                     double num1 = atof(valor1);
                     double num2 = atof(valor2);
-                    comparison = (num1 > num2) - (num1 < num2);
+
+                    if ((ascending && num1 > num2) || (!ascending && num1 < num2))
+                    {
+                        for (int k = 0; k < df->numColumnas; k++)
+                        {
+                            char **datos = (char **)df->columnas[k].datos;
+                            char *temp = datos[i];
+                            datos[i] = datos[j];
+                            datos[j] = temp;
+
+                            // Intercambiar también el estado NULL
+                            unsigned char tempNull = df->columnas[k].esNulo[i];
+                            df->columnas[k].esNulo[i] = df->columnas[k].esNulo[j];
+                            df->columnas[k].esNulo[j] = tempNull;
+                        }
+                    }
                 }
                 else
                 {
-                    comparison = strcmp(valor1, valor2);
-                }
-
-                // Determinar si se debe intercambiar según el orden especificado
-                if ((ascending && comparison > 0) || (!ascending && comparison < 0))
-                {
-                    for (int k = 0; k < df->numColumnas; k++)
+                    // Comparar valores de texto
+                    int comparison = strcmp(valor1, valor2);
+                    if ((ascending && comparison > 0) || (!ascending && comparison < 0))
                     {
-                        char **datos = (char **)df->columnas[k].datos;
-                        char *temp = datos[i];
-                        datos[i] = datos[j];
-                        datos[j] = temp;
+                        for (int k = 0; k < df->numColumnas; k++)
+                        {
+                            char **datos = (char **)df->columnas[k].datos;
+                            char *temp = datos[i];
+                            datos[i] = datos[j];
+                            datos[j] = temp;
 
-                        // Intercambiar también el estado NULL
-                        unsigned char tempNull = df->columnas[k].esNulo[i];
-                        df->columnas[k].esNulo[i] = df->columnas[k].esNulo[j];
-                        df->columnas[k].esNulo[j] = tempNull;
+                            // Intercambiar también el estado NULL
+                            unsigned char tempNull = df->columnas[k].esNulo[i];
+                            df->columnas[k].esNulo[i] = df->columnas[k].esNulo[j];
+                            df->columnas[k].esNulo[j] = tempNull;
+                        }
                     }
                 }
             }
@@ -1456,6 +1517,7 @@ void sort(Dataframe *df, const char *nombre_columna, const char *orden)
     printf("Las filas se han ordenado correctamente por la columna %s en orden %s.\n",
            nombre_columna, ascending ? "ascendente" : "descendente");
 }
+
 
 int numeroDataframes(Lista *lista)
 {

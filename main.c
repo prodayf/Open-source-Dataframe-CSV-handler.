@@ -258,7 +258,7 @@ int main()
             }
 
             // Si no hay argumentos, ejecuta meta
-            list(&lista,df);
+            list2(&lista);
         }
 
         else if (strncmp(comando, "filter", 6) == 0)

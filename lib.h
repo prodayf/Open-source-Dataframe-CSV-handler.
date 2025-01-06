@@ -78,3 +78,4 @@ void sort(Dataframe *df, const char *nombre_columna, const char *orden);
 int numeroDataframes(Lista *lista);
 void defaultName(Dataframe *df, int numeroDataframes);
 void name(Dataframe *df, const char *nombre);
+void list2(Lista *lista);
