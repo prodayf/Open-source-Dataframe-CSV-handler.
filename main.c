@@ -109,9 +109,10 @@ int main()
             df = load(token);
             if (df != NULL)
             {
-                insertarDataframeLista(&lista, load(token));
+                
                 // imprimirLista(&lista);
                 defaultName(df, numeroDataframes(&lista));
+                insertarDataframeLista(&lista, df);
                 prompt2(df);
                 // (&lista, 0, aactivo);
                 numeroDataframes(&lista);
@@ -257,7 +258,7 @@ int main()
             }
 
             // Si no hay argumentos, ejecuta meta
-            list(&lista);
+            list(&lista,df);
         }
 
         else if (strncmp(comando, "filter", 6) == 0)

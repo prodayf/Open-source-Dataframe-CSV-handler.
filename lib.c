@@ -1052,12 +1052,18 @@ void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaCo
     printf("Columna %s creada con éxito.\n", nombreNuevaColumna);
 }
 
-void list(Lista *lista)
+void list(Lista *lista, Dataframe *df)
 {
     // Verificar si la lista está vacía
     if (lista == NULL || lista->primero == NULL)
     {
         printf("La lista está vacía.\n");
+        return;
+    }
+
+    if (df == NULL)
+    {
+        printf("No se pasó un DataFrame válido.\n");
         return;
     }
 
@@ -1071,15 +1077,24 @@ void list(Lista *lista)
     {
         if (actual->df != NULL)
         {
-            establecer_color(VERDE);
-            printf("nombre_%d: %d filas, %d columnas\n", i, actual->df->numFilas, actual->df->numColumnas);
-
+            // Acceder al nombre desde el DataFrame directamente
+            printf("Nombre: %s, %d filas, %d columnas\n",
+                   actual->df->nombre,
+                   actual->df->numFilas,
+                   actual->df->numColumnas);
             i++;
+        }
+        else
+        {
+            printf("Nodo sin DataFrame.\n");
         }
         actual = actual->siguiente; // Mover al siguiente nodo
     }
 
-    printf("Número total de DataFrames en la lista: %d\n", lista->numDFs);
+    // Acceso adicional directo al DataFrame proporcionado como parámetro
+    //printf("Nombre: %s, %d filas, %d columnas\n", df->nombre, df->numFilas, df->numColumnas);
+
+    printf("\nNúmero total de DataFrames en la lista: %d\n", lista->numDFs);
 }
 
 void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *operador, const char *valor)

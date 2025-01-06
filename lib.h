@@ -70,7 +70,7 @@ void view(Dataframe *df, int indice);
 void delnull(Dataframe *df, const char *columnaNombre);
 void save(Dataframe *df, const char *nombreFichero);
 void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaColumna);
-void list(Lista *lista);
+void list(Lista *lista, Dataframe *df);
 void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *operador, const char *valor);
 void prompt2(Dataframe *df);
 void prefix(Dataframe *df, const char *nombre_columna, int n, const char *nombreNuevaColumna);
