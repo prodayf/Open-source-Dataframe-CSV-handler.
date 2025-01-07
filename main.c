@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
+
 #include "lib.h"
 #define ROJO 12   // Color rojo
 #define VERDE 10  // Color verde
@@ -9,6 +10,7 @@
 int aactivo = -1;
 int main()
 {
+    
     int contador = 0;
     char comando[100];
     char *texto = "pepe";                          // Valor numérico
