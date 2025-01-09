@@ -8,6 +8,8 @@
 #define VERDE 10  // Color verde
 #define BLANCO 15 // Color blanco
 int aactivo = -1;
+
+
 int main()
 {
     
@@ -23,6 +25,7 @@ int main()
     // Dataframe *df = crearDataframe(2, 3);
     // Dataframe *df2 = crearDataframe(2, 3);
     Dataframe *df = NULL;
+    //Dataframe *activo = NULL;
 
     Lista lista;
     inicializarLista(&lista);
@@ -434,10 +437,32 @@ int main()
         
 
         else
+{
+    // Verificar si el comando es el nombre de un DataFrame válido
+    Nodo *actual = lista.primero;
+    int encontrado = 0;
+
+    while (actual != NULL)
+    {
+        if (strcmp(actual->df->nombre, comando) == 0)
         {
-            establecer_color(ROJO);
-            printf("Comando no reconocido.\n");
+            // Si el nombre del DataFrame coincide, lo seteamos como activo
+            setActiveDataFrame(&lista, comando, &df);
+            prompt2(df);
+            imprimirDataframe(df);
+            encontrado = 1;
+            break;
         }
+        actual = actual->siguiente;
+    }
+
+    // Si no se encuentra el DataFrame con ese nombre, es un comando no reconocido
+    if (!encontrado)
+    {
+        establecer_color(ROJO);
+        printf("Comando no reconocido.\n");
+    }
+}
     }
 
     return 0;

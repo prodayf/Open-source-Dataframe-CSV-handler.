@@ -6,7 +6,7 @@
 #include "lib.h"
 #include <ctype.h>
 
-#define MAX_FILAS 1000
+#define MAX_FILAS 2000
 #define MAX_COLUMNAS 10
 #define MAX_STRING 100
 #define MAX_DATAFRAMES 100
@@ -272,47 +272,46 @@ void eliminarDataframe(Dataframe **df)
     }
 }
 
-void imprimirDataframe(Dataframe *df)
+void imprimirDataframe(Dataframe *activo)
 {
-    // Comprobar si el DataFrame es nulo
-    if (df == NULL)
+    // Comprobar si el DataFrame activo es nulo
+    if (activo == NULL)
     {
-        printf("El DataFrame es nulo.\n");
+        printf("El DataFrame activo es nulo.\n");
         return;
     }
 
     // Imprimir encabezados de las columnas
-    for (int i = 0; i < df->numColumnas; i++)
+    for (int i = 0; i < activo->numColumnas; i++)
     {
-        printf("%-30s", df->columnas[i].nombre);
+        printf("%-30s", activo->columnas[i].nombre);
     }
     printf("\n"); // Salto de línea después de imprimir los encabezados
 
     // Imprimir los datos de cada fila
-    for (int i = 0; i < df->numFilas; i++)
+    for (int i = 0; i < activo->numFilas; i++)
     {
-        for (int j = 0; j < df->numColumnas; j++)
+        for (int j = 0; j < activo->numColumnas; j++)
         {
-            if (df->columnas[j].esNulo[i] == 1)
+            if (activo->columnas[j].esNulo[i] == 1)
             {
                 printf("%-30s", "NULL"); // Imprimir "NULL" para los valores nulos
             }
             else
             {
-            
                 // Suponiendo que la columna tiene un puntero a datos que almacena los valores
-                if (df->columnas[j].tipo == TEXTO)
+                if (activo->columnas[j].tipo == TEXTO)
                 {
-                    printf("%-30s", ((char **)df->columnas[j].datos)[i]); // Imprime datos de tipo texto
+                    printf("%-30s", ((char **)activo->columnas[j].datos)[i]); // Imprime datos de tipo texto
                 }
-                else if (df->columnas[j].tipo == NUMERICO)
+                else if (activo->columnas[j].tipo == NUMERICO)
                 {
-                    printf("%-30s", ((char **)df->columnas[j].datos)[i]); // Imprime datos numéricos como texto
+                    printf("%-30s", ((char **)activo->columnas[j].datos)[i]); // Imprime datos numéricos como texto
                 }
-                else if (df->columnas[j].tipo == FECHA)
+                else if (activo->columnas[j].tipo == FECHA)
                 {
                     // Si la columna es de tipo FECHA, asumimos que los datos están almacenados como cadenas
-                    printf("%-30s", ((char **)df->columnas[j].datos)[i]); // Imprime datos de tipo fecha
+                    printf("%-30s", ((char **)activo->columnas[j].datos)[i]); // Imprime datos de tipo fecha
                 }
                 // Agregar más condiciones para otros tipos de datos si es necesario
             }
@@ -1473,8 +1472,8 @@ void sort(Dataframe *df, const char *nombre_columna, const char *orden)
                 double num1 = atof(valor1);
                 double num2 = atof(valor2);
 
-                printf("num1: %s, num2: %s\n", valor1, valor2);
-                printf("num1: %f, num2: %f\n", num1, num2);
+                // printf("num1: %s, num2: %s\n", valor1, valor2);
+                // printf("num1: %f, num2: %f\n", num1, num2);
 
                 if ((ascending && num1 > num2) || (!ascending && num1 < num2))
                 {
@@ -1540,4 +1539,39 @@ void name(Dataframe *df, const char *nombre)
     strcpy(df->nombre, nombre);
     printf("Nombre asignado: %s\n", df->nombre);
 }
+void setActiveDataFrame(Lista *lista, const char *nombre, Dataframe **activo)
+{
+    // Verificar que el nombre es válido (sin parámetros adicionales)
+    if (strchr(nombre, ' ') != NULL)
+    {
+        establecer_color(ROJO);
+        printf("Error: El nombre del DataFrame no debe contener parámetros adicionales.\n");
+        return;
+    }
+
+    // Verificar si el DataFrame existe en la lista
+    Nodo *actual = lista->primero;
+    int encontrado = 0;
+
+    while (actual != NULL)
+    {
+        if (strcmp(actual->df->nombre, nombre) == 0)
+        {
+            // Si encontramos el DataFrame, lo establecemos como activo
+            *activo = actual->df;  // Modificamos el puntero activo
+            printf("El DataFrame %s es ahora el DataFrame activo.\n", nombre);
+            encontrado = 1;
+            break;
+        }
+        actual = actual->siguiente;
+    }
+
+    // Si no encontramos el DataFrame, mostramos un error
+    if (!encontrado)
+    {
+        establecer_color(ROJO);
+        printf("Error: El DataFrame %s no existe.\n", nombre);
+    }
+}
+
 
