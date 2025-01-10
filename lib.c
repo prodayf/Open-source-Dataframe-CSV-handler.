@@ -471,14 +471,14 @@ void eliminarDataframeLista(Lista *lista, Dataframe *df)
         actual = actual->siguiente;
     }
 
-    printf("El DataFrame no se encontró en la lista.\n");
+    printf("El DataFrame no se encontro en la lista.\n");
 }
 
 void eliminarDataframes(Lista *lista)
 {
     if (lista == NULL || lista->primero == NULL)
     {
-        printf("La lista ya está vacía o no existe.\n");
+        printf("La lista ya esta vaciaa o no existe.\n");
         return;
     }
 
@@ -880,7 +880,7 @@ void delnull(Dataframe *df, const char *columnaNombre)
     if (filasEliminadas > 0)
     {
         establecer_color(VERDE);
-        printf("\033[0;32mSe han eliminado %d filas.\033[0m\n", filasEliminadas);
+        printf("Se han eliminado %d filas.\n", filasEliminadas);
     }
     else
     {
@@ -1072,7 +1072,7 @@ void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaCo
         }
     }
 
-    printf("Columna %s creada con éxito.\n", nombreNuevaColumna);
+    printf("Columna %s creada con exito.\n", nombreNuevaColumna);
 }
 
 void list(Lista *lista, Dataframe *df)
@@ -1080,13 +1080,13 @@ void list(Lista *lista, Dataframe *df)
     // Verificar si la lista está vacía
     if (lista == NULL || lista->primero == NULL)
     {
-        printf("La lista está vacía.\n");
+        printf("La lista esta vacia.\n");
         return;
     }
 
     if (df == NULL)
     {
-        printf("No se pasó un DataFrame válido.\n");
+        printf("No se paso un DataFrame válido.\n");
         return;
     }
 
@@ -1172,7 +1172,25 @@ void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *ope
 {
     if (df == NULL)
     {
-        printf("\033[31mError: No hay un DataFrame activo.\033[0m\n");
+        printf("mError: No hay un DataFrame activo.\n");
+        return;
+    }
+
+    // Validar el operador
+    const char *operadores_validos[] = {"eq", "neq", "gt", "lt"};
+    int operador_valido = 0;
+    for (int i = 0; i < sizeof(operadores_validos) / sizeof(operadores_validos[0]); i++)
+    {
+        if (strcmp(operador, operadores_validos[i]) == 0)
+        {
+            operador_valido = 1;
+            break;
+        }
+    }
+
+    if (!operador_valido)
+    {
+        printf("mError: Operador no valido. Los operadores valido son: eq, neq, gt, lt\n");
         return;
     }
 
@@ -1190,7 +1208,7 @@ void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *ope
 
     if (columna == -1)
     {
-        printf("\033[31mError: La columna %s no existe.\033[0m\n", nombre_columna);
+        printf("Error: La columna %s no existe.\n", nombre_columna);
         return;
     }
 
@@ -1220,10 +1238,7 @@ void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *ope
             {
                 cumple_condicion = strcmp(dato, valor) != 0;
             }
-            else if (strcmp(operador, "contains") == 0)
-            {
-                cumple_condicion = strstr(dato, valor) != NULL;
-            }
+        
         }
         else if (tipo == NUMERICO)
         {
@@ -1253,7 +1268,7 @@ void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *ope
             // Operadores para fechas (formato YYYY/MM/DD)
             if (!fechaValida((char *)dato) || !fechaValida((char *)valor))
             {
-                printf("\033[31mError: Fecha no válida en la comparación.\033[0m\n");
+                printf("mError: Fecha no válida en la comparacion.\n");
                 return;
             }
 
@@ -1315,7 +1330,7 @@ void prefix(Dataframe *df, const char *nombre_columna, int n, const char *nombre
     // Verificar que el número de caracteres 'n' es válido
     if (n <= 0)
     {
-        printf("Error: El número de caracteres debe ser mayor a 0.\n");
+        printf("Error: El numero de caracteres debe ser mayor a 0.\n");
         return;
     }
 
@@ -1386,7 +1401,7 @@ void prefix(Dataframe *df, const char *nombre_columna, int n, const char *nombre
         }
     }
 
-    printf("Columna %s creada con éxito.\n", nombreNuevaColumna);
+    printf("Columna %s creada con exito.\n", nombreNuevaColumna);
 }
 
 void sort(Dataframe *df, const char *nombre_columna, const char *orden)
@@ -1394,14 +1409,14 @@ void sort(Dataframe *df, const char *nombre_columna, const char *orden)
     if (df == NULL)
     {
         establecer_color(ROJO);
-        printf("\033[1;31mNo hay un DataFrame activo.\033[0m\n");
+        printf("No hay un DataFrame activo.\n");
         return;
     }
 
     if (nombre_columna == NULL || (orden != NULL && strcmp(orden, "asc") != 0 && strcmp(orden, "des") != 0))
     {
         establecer_color(ROJO);
-        printf("\033[1;31mParámetros mal escritos o incorrectos.\033[0m\n");
+        printf("parametros mal escritos o incorrectos.\n");
         return;
     }
 
@@ -1418,7 +1433,7 @@ void sort(Dataframe *df, const char *nombre_columna, const char *orden)
     if (colIndex == -1)
     {
         establecer_color(ROJO);
-        printf("\033[1;31mLa columna %s no existe.\033[0m\n", nombre_columna);
+        printf("La columna %s no existe.\n", nombre_columna);
         return;
     }
 
@@ -1567,7 +1582,7 @@ void setActiveDataFrame(Lista *lista, const char *nombre, Dataframe **activo)
     if (strchr(nombre, ' ') != NULL)
     {
         establecer_color(ROJO);
-        printf("Error: El nombre del DataFrame no debe contener parámetros adicionales.\n");
+        printf("Error: El nombre del DataFrame no debe contener parametros adicionales.\n");
         return;
     }
 
