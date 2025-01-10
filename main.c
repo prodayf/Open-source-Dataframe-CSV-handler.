@@ -9,10 +9,9 @@
 #define BLANCO 15 // Color blanco
 int aactivo = -1;
 
-
 int main()
 {
-    
+
     int contador = 0;
     char comando[100];
     char *texto = "pepe";                          // Valor numérico
@@ -25,7 +24,7 @@ int main()
     // Dataframe *df = crearDataframe(2, 3);
     // Dataframe *df2 = crearDataframe(2, 3);
     Dataframe *df = NULL;
-    //Dataframe *activo = NULL;
+    // Dataframe *activo = NULL;
 
     Lista lista;
     inicializarLista(&lista);
@@ -45,53 +44,7 @@ int main()
         gets(comando);
         // detectar_tipo(comando);
 
-        if (strcmp(comando, "1") == 0) // NOMBRES
-        {
-            establecer_color(VERDE);
-            printf("Aleks Yuliyanov Filipov, aleks.yuliyanov@goumh.umh.es\n");
-        }
-        // else if (strcmp(comando, "2") == 0) // IMPRIMIR COLUMNAS
-        // {
-        //     establecer_color(VERDE);
-        //     imprimirColumna(col);
-        //     // imprimirColumna(col2);
-        // }
-        // else if (strcmp(comando, "3") == 0) // ELIMINAR COLUMNAS
-        // {
-        //     eliminarColumna(&col);
-        // }
-
-        // else if (strcmp(comando, "4") == 0)
-        // {
-        //     imprimirDataframe(df);
-        // }
-        // else if (strcmp(comando, "5") == 0)
-        // {
-        //     eliminarDataframe(&df);
-        //     printf("Dataframe eliminado correctamente.\n");
-        // }
-        // else if (strcmp(comando, "6") == 0)
-        // {
-
-        //     insertarDataframeLista(&lista, df);
-        //     insertarDataframeLista(&lista, df2);
-        // }
-        // else if (strcmp(comando, "7") == 0)
-        // {
-        //     imprimirLista(&lista);
-        // }
-
-        // else if (strcmp(comando, "8") == 0)
-        // {
-        //     eliminarDataframeLista(&lista, df);
-        // }
-
-        // else if (strcmp(comando, "9") == 0)
-        // {
-        //     eliminarDataframes(&lista);
-        // }
-
-        else if (strcmp(comando, "quit") == 0)
+        if (strcmp(comando, "quit") == 0)
         {
             eliminarDataframes(&lista);
             establecer_color(VERDE);
@@ -103,26 +56,33 @@ int main()
         else if (strncmp(comando, "load", 4) == 0)
         {
             prompt2(df);
-            char *token = strtok(comando, " ");
-            token = strtok(NULL, " ");
+            char *token = strtok(comando, " "); // Divide el comando inicial
+            token = strtok(NULL, " ");          // Obtiene el nombre del archivo
+            char *extra = strtok(NULL, " ");    // Verifica si hay más tokens
+
             if (token == NULL)
             {
                 establecer_color(ROJO);
                 printf("Falta el nombre del archivo.\n");
                 continue;
             }
+
+            if (extra != NULL)
+            {
+                establecer_color(ROJO);
+                printf("El comando 'load' solo debe incluir el nombre del archivo.\n");
+                continue;
+            }
+
             df = load(token);
             if (df != NULL)
             {
-                
-                // imprimirLista(&lista);
                 defaultName(df, numeroDataframes(&lista));
                 insertarDataframeLista(&lista, df);
                 prompt2(df);
-                // (&lista, 0, aactivo);
                 numeroDataframes(&lista);
             }
-            printf(token);
+            printf("%s\n", token); // Imprime el nombre del archivo cargado
         }
         else if (strncmp(comando, "meta", 4) == 0)
         {
@@ -161,25 +121,34 @@ int main()
             }
         }
 
-        else if (strncmp(comando, "view ", 4) == 0)
+        else if (strncmp(comando, "view", 4) == 0)
         {
             char *token = strtok(comando, " "); // Divide el comando inicial
             token = strtok(NULL, " ");          // Intenta obtener el siguiente token (argumento)
-            int indice = atoi(token);
+
+            // Si no se proporciona un argumento, imprime todas las filas
             if (token == NULL)
             {
-                establecer_color(ROJO);
-                printf("Falta el nombre de la columna.\n");
-                continue;
+                view(df, df->numFilas); // Llama a view con el total de filas
+                prompt2(df);
             }
             else
             {
-                view(df, indice);
-                prompt2(df);
-                (&lista, 0, aactivo);
+                int indice = atoi(token); // Convierte el token a entero
+
+                // Si no es un número válido (y no es 0, porque 0 es inválido para `view`)
+                if (strcmp(token, "0") == 0 || (indice == 0 && strcmp(token, "0") != 0))
+                {
+                    establecer_color(ROJO);
+                    printf("El valor proporcionado no es un numero valido.\n");
+                }
+                else
+                {
+                    view(df, indice); // Llama a view con el número de filas especificado (positivo o negativo)
+                    prompt2(df);
+                }
             }
         }
-
         else if (strncmp(comando, "delnull ", 7) == 0)
         {
             char *token = strtok(comando, " "); // Divide el comando inicial
@@ -304,7 +273,7 @@ int main()
             if (token != NULL)
             {
                 establecer_color(ROJO);
-                printf("Error: Demasiados parámetros para el comando 'filter'.\n");
+                printf("Error: Demasiados parametros para el comando 'filter'.\n");
                 continue;
             }
 
@@ -355,7 +324,7 @@ int main()
             if (token != NULL)
             {
                 establecer_color(ROJO);
-                printf("Error: Demasiados parámetros para el comando 'prefix'.\n");
+                printf("Error: Demasiados parametros para el comando 'prefix'.\n");
                 continue;
             }
 
@@ -389,7 +358,7 @@ int main()
                 else
                 {
                     establecer_color(ROJO);
-                    printf("Error: Orden inválido. Use 'asc' o 'des'.\n");
+                    printf("Error: Orden invalido. Use 'asc' o 'des'.\n");
                     continue;
                 }
             }
@@ -398,7 +367,7 @@ int main()
             if (token != NULL)
             {
                 establecer_color(ROJO);
-                printf("Error: Demasiados parámetros para el comando 'sort'.\n");
+                printf("Error: Demasiados parametros para el comando 'sort'.\n");
                 continue;
             }
 
@@ -421,48 +390,46 @@ int main()
             }
             else
             {
-                name(df, token);
+                name(&lista, df, token);
                 imprimirDataframe(df);
             }
 
-             token = strtok(NULL, " "); // Verifica que no haya más parámetros
+            token = strtok(NULL, " "); // Verifica que no haya más parámetros
             if (token != NULL)
             {
                 establecer_color(ROJO);
-                printf("Error: Demasiados parámetros para el comando 'name'.\n");
+                printf("Error: Demasiados parametros para el comando 'name'.\n");
                 continue;
             }
         }
 
-        
-
         else
-{
-    // Verificar si el comando es el nombre de un DataFrame válido
-    Nodo *actual = lista.primero;
-    int encontrado = 0;
-
-    while (actual != NULL)
-    {
-        if (strcmp(actual->df->nombre, comando) == 0)
         {
-            // Si el nombre del DataFrame coincide, lo seteamos como activo
-            setActiveDataFrame(&lista, comando, &df);
-            prompt2(df);
-            imprimirDataframe(df);
-            encontrado = 1;
-            break;
-        }
-        actual = actual->siguiente;
-    }
+            // Verificar si el comando es el nombre de un DataFrame válido
+            Nodo *actual = lista.primero;
+            int encontrado = 0;
 
-    // Si no se encuentra el DataFrame con ese nombre, es un comando no reconocido
-    if (!encontrado)
-    {
-        establecer_color(ROJO);
-        printf("Comando no reconocido.\n");
-    }
-}
+            while (actual != NULL)
+            {
+                if (strcmp(actual->df->nombre, comando) == 0)
+                {
+                    // Si el nombre del DataFrame coincide, lo seteamos como activo
+                    setActiveDataFrame(&lista, comando, &df);
+                    prompt2(df);
+                    imprimirDataframe(df);
+                    encontrado = 1;
+                    break;
+                }
+                actual = actual->siguiente;
+            }
+
+            // Si no se encuentra el DataFrame con ese nombre, es un comando no reconocido
+            if (!encontrado)
+            {
+                establecer_color(ROJO);
+                printf("Comando no reconocido.\n");
+            }
+        }
     }
 
     return 0;

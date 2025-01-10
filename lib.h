@@ -1,4 +1,3 @@
-#include <stddef.h> // Para NULL
 // Tipo enumerado para representar los diferentes tipos de datos en las columnas
 typedef enum
 {
@@ -77,7 +76,7 @@ void prefix(Dataframe *df, const char *nombre_columna, int n, const char *nombre
 void sort(Dataframe *df, const char *nombre_columna, const char *orden);
 int numeroDataframes(Lista *lista);
 void defaultName(Dataframe *df, int numeroDataframes);
-void name(Dataframe *df, const char *nombre);
+void name(Lista *lista, Dataframe *df, const char *nombre);
 void list2(Lista *lista);
 void setActiveDataFrame(Lista *lista, const char *nombre, Dataframe **activo);
 void prompt3(Dataframe *activo);

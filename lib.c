@@ -36,7 +36,7 @@ int fechaValida(char *valor)
         else
         {
             establecer_color(ROJO);
-            printf("Fecha no valida,EL PROGARAMA SE CERRARA. el formato es YYYY/MM/DD\n");
+            printf("Fecha no valida,EL PROGARAMA SE CERRARA. el formato es YYYY-MM-DD\n");
             establecer_color(BLANCO);
             exit(EXIT_FAILURE);
         }
@@ -48,7 +48,7 @@ TipoDato detectar_tipo(char *valor)
     // Comprobar si es un número
     if (esNumero(valor))
     {
-        printf("NUMERICO\n");
+        // printf("NUMERICO\n");
         return NUMERICO;
         // tipo 0
     }
@@ -56,14 +56,14 @@ TipoDato detectar_tipo(char *valor)
     // Comprobar si es una fecha válida
     if (fechaValida(valor))
     {
-        printf("FECHA\n");
+        // printf("FECHA\n");
         return FECHA;
 
         // es tipo 2
     }
 
     // Si no es ni número ni fecha, es texto
-    printf("TEXTO\n");
+    // printf("TEXTO\n");
     return TEXTO;
 }
 
@@ -280,7 +280,6 @@ void imprimirDataframe(Dataframe *activo)
         printf("El DataFrame activo es nulo.\n");
         return;
     }
-
     // Imprimir encabezados de las columnas
     for (int i = 0; i < activo->numColumnas; i++)
     {
@@ -512,6 +511,7 @@ Dataframe *load(char *filename)
     FILE *file = fopen(filename, "r");
     if (file == NULL)
     {
+        establecer_color(ROJO);
         printf("Error al abrir el archivo\n");
         return NULL;
     }
@@ -647,7 +647,6 @@ void prompt2(Dataframe *df)
     }
 }
 
-
 void procesarComando(char *comando)
 {
     char *token = strtok(comando, " ");
@@ -763,7 +762,7 @@ void view(Dataframe *df, int n)
     if (n == 0)
     {
         establecer_color(ROJO);
-        printf("El valor de n es inválido\n");
+        printf("El valor de n es invalido\n");
         return;
     }
 
@@ -895,6 +894,7 @@ void save(Dataframe *df, const char *nombreFichero)
     // Comprobar si hay un DataFrame activo
     if (df == NULL)
     {
+        establecer_color(ROJO);
         printf("No hay un DataFrame activo.\n");
         return;
     }
@@ -903,6 +903,7 @@ void save(Dataframe *df, const char *nombreFichero)
     FILE *archivo = fopen(nombreFichero, "w");
     if (archivo == NULL)
     {
+        establecer_color(ROJO);
         printf("Error al abrir el archivo para guardar.\n");
         return;
     }
@@ -984,6 +985,7 @@ void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaCo
             }
             else
             {
+                establecer_color(ROJO);
                 printf("La columna %s no es de tipo FECHA.\n", nombreColumna);
                 return;
             }
@@ -1113,9 +1115,9 @@ void list(Lista *lista, Dataframe *df)
     }
 
     // Acceso adicional directo al DataFrame proporcionado como parámetro
-    //printf("Nombre: %s, %d filas, %d columnas\n", df->nombre, df->numFilas, df->numColumnas);
+    // printf("Nombre: %s, %d filas, %d columnas\n", df->nombre, df->numFilas, df->numColumnas);
 
-    printf("\nNúmero total de DataFrames en la lista: %d\n", lista->numDFs);
+    printf("\nNumero total de DataFrames en la lista: %d\n", lista->numDFs);
 }
 
 void list2(Lista *lista)
@@ -1123,7 +1125,7 @@ void list2(Lista *lista)
     // Verificar si la lista está vacía
     if (lista == NULL || lista->primero == NULL)
     {
-        printf("La lista está vacía.\n");
+        printf("La lista esta vacia.\n");
         return;
     }
 
@@ -1153,8 +1155,9 @@ void list2(Lista *lista)
         Dataframe *df = nodos[j]->df;
         if (df != NULL)
         {
-            printf("DataFrame %d: Nombre: %s, %d filas, %d columnas\n",
-                   j + 1, df->nombre, df->numFilas, df->numColumnas);
+            establecer_color(VERDE);
+            printf(" Nombre: %s, %d filas, %d columnas\n",
+                   df->nombre, df->numFilas, df->numColumnas);
         }
         else
         {
@@ -1163,7 +1166,7 @@ void list2(Lista *lista)
     }
 
     free(nodos);
-    printf("\nNúmero total de DataFrames en la lista: %d\n", totalDFs);
+    printf("\nNumero total de DataFrames en la lista: %d\n", totalDFs);
 }
 void filter_dataframe(Dataframe *df, const char *nombre_columna, const char *operador, const char *valor)
 {
@@ -1386,18 +1389,18 @@ void prefix(Dataframe *df, const char *nombre_columna, int n, const char *nombre
     printf("Columna %s creada con éxito.\n", nombreNuevaColumna);
 }
 
-
-
 void sort(Dataframe *df, const char *nombre_columna, const char *orden)
 {
     if (df == NULL)
     {
+        establecer_color(ROJO);
         printf("\033[1;31mNo hay un DataFrame activo.\033[0m\n");
         return;
     }
 
     if (nombre_columna == NULL || (orden != NULL && strcmp(orden, "asc") != 0 && strcmp(orden, "des") != 0))
     {
+        establecer_color(ROJO);
         printf("\033[1;31mParámetros mal escritos o incorrectos.\033[0m\n");
         return;
     }
@@ -1414,6 +1417,7 @@ void sort(Dataframe *df, const char *nombre_columna, const char *orden)
 
     if (colIndex == -1)
     {
+        establecer_color(ROJO);
         printf("\033[1;31mLa columna %s no existe.\033[0m\n", nombre_columna);
         return;
     }
@@ -1506,6 +1510,7 @@ void sort(Dataframe *df, const char *nombre_columna, const char *orden)
         }
     }
 
+    establecer_color(VERDE);
     printf("Las filas se han ordenado correctamente por la columna %s en orden %s.\n",
            nombre_columna, ascending ? "ascendente" : "descendente");
 }
@@ -1515,7 +1520,9 @@ int numeroDataframes(Lista *lista)
     if (lista == NULL)
     {
         return 0;
-    }else{
+    }
+    else
+    {
         printf("Numero de Dataframes: %d\n", lista->numDFs);
     }
     return lista->numDFs;
@@ -1528,7 +1535,7 @@ void defaultName(Dataframe *df, int numeroDataframes)
     strcpy(df->nombre, nombre);
 }
 
-void name(Dataframe *df, const char *nombre)
+void name(Lista *lista, Dataframe *df, const char *nombre)
 {
     if (df == NULL)
     {
@@ -1536,6 +1543,21 @@ void name(Dataframe *df, const char *nombre)
         return;
     }
 
+    // Verificar si ya existe un DataFrame con el mismo nombre
+    Nodo *actual = lista->primero;
+    while (actual != NULL)
+    {
+        if (strcmp(actual->df->nombre, nombre) == 0)
+        {
+            // Si el nombre ya existe, mostramos un error
+            establecer_color(ROJO);
+            printf("Error: Ya existe un DataFrame con el nombre '%s'. No se puede asignar ese nombre.\n", nombre);
+            return;
+        }
+        actual = actual->siguiente;
+    }
+
+    // Si no existe un DataFrame con el mismo nombre, asignamos el nuevo nombre
     strcpy(df->nombre, nombre);
     printf("Nombre asignado: %s\n", df->nombre);
 }
@@ -1558,7 +1580,7 @@ void setActiveDataFrame(Lista *lista, const char *nombre, Dataframe **activo)
         if (strcmp(actual->df->nombre, nombre) == 0)
         {
             // Si encontramos el DataFrame, lo establecemos como activo
-            *activo = actual->df;  // Modificamos el puntero activo
+            *activo = actual->df; // Modificamos el puntero activo
             printf("El DataFrame %s es ahora el DataFrame activo.\n", nombre);
             encontrado = 1;
             break;
@@ -1573,5 +1595,3 @@ void setActiveDataFrame(Lista *lista, const char *nombre, Dataframe **activo)
         printf("Error: El DataFrame %s no existe.\n", nombre);
     }
 }
-
-
