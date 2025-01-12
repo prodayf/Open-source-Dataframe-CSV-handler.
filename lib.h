@@ -80,3 +80,7 @@ void name(Lista *lista, Dataframe *df, const char *nombre);
 void list2(Lista *lista);
 void setActiveDataFrame(Lista *lista, const char *nombre, Dataframe **activo);
 void prompt3(Dataframe *activo);
+void calcularMedia(Dataframe *df, const char *nombre_columna);
+void renombrarColumna(Dataframe *df, const char *nombreActual, const char *nuevoNombre);
+//void liberarDataframe(Dataframe *df); //diosmio esto no funciona y me esta maatando
+void eliminarDataframe2(Lista *lista, const char *nombre);

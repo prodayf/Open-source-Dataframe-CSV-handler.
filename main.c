@@ -403,6 +403,73 @@ int main()
             }
         }
 
+        else if (strncmp(comando, "media", 5) == 0)
+        {
+            if (df == NULL)
+            {
+                printf("Error: No hay un DataFrame activo.\n");
+                continue;
+            }
+
+            char *token = strtok(comando, " ");
+            token = strtok(NULL, " "); // Obtener el nombre de la columna
+
+            if (token == NULL)
+            {
+                printf("Error: Debes especificar el nombre de la columna.\n");
+                continue;
+            }
+
+            calcularMedia(df, token);
+        }
+
+
+        else if (strncmp(comando, "rename", 6) == 0)
+        {
+            if (df == NULL)
+            {
+                establecer_color(ROJO);
+                printf("Error: No hay un DataFrame activo.\n");
+                continue;
+            }
+
+            char *token = strtok(comando, " ");
+            char *nombreActual = strtok(NULL, " ");
+            char *nuevoNombre = strtok(NULL, " ");
+
+            if (nombreActual == NULL || nuevoNombre == NULL)
+            {
+                establecer_color(ROJO);
+                printf("Error: Debes especificar el nombre actual y el nuevo nombre de la columna.\n");
+                continue;
+            }
+
+            renombrarColumna(df, nombreActual, nuevoNombre);
+            imprimirDataframe(df);
+
+        }
+
+        else if (strncmp(comando, "delete", 6) == 0)
+        {
+            if (df == NULL)
+            {
+                establecer_color(ROJO);
+                printf("Error: No hay un DataFrame activo.\n");
+                continue;
+            }
+
+            char *token = strtok(comando, " ");
+            char *nombreActual = strtok(NULL, " ");
+
+            if (nombreActual == NULL)
+            {
+                establecer_color(ROJO);
+                printf("Error: Debes especificar el nombre del dataframe a eliminar.\n");
+                continue;
+            }
+            eliminarDataframe2(&lista, nombreActual);
+        }
+
         else
         {
             // Verificar si el comando es el nombre de un DataFrame válido

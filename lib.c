@@ -968,6 +968,7 @@ void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaCo
     // Comprobar si hay un DataFrame activo
     if (df == NULL)
     {
+        establecer_color(ROJO);
         printf("No hay un DataFrame activo.\n");
         return;
     }
@@ -995,6 +996,7 @@ void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaCo
     // Si la columna no existe
     if (colIndex == -1)
     {
+        establecer_color(ROJO);
         printf("La columna %s no existe.\n", nombreColumna);
         return;
     }
@@ -1004,6 +1006,7 @@ void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaCo
     {
         if (strcmp(df->columnas[i].nombre, nombreNuevaColumna) == 0)
         {
+            establecer_color(ROJO);
             printf("Ya existe una columna con el nombre %s.\n", nombreNuevaColumna);
             return;
         }
@@ -1031,12 +1034,13 @@ void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaCo
         }
         else
         {
-            // Obtener la fecha de la columna existente (se asume que las fechas están como cadenas en formato "dd/mm/yyyy")
+            // Obtener la fecha de la columna existente
             char *fecha = ((char **)df->columnas[colIndex].datos)[i];
             int dia, mes, anio;
 
-            // Parsear la fecha
-            if (sscanf(fecha, "%4d-%2d-%2d", &anio, &mes, &dia) == 3)
+            // Intentar parsear la fecha con los formatos aceptados
+            if (sscanf(fecha, "%4d-%2d-%2d", &anio, &mes, &dia) == 3 ||
+                sscanf(fecha, "%4d/%2d/%2d", &anio, &mes, &dia) == 3)
             {
                 // Determinar el trimestre en función del mes
                 char *trimestre;
@@ -1071,9 +1075,12 @@ void quarter(Dataframe *df, const char *nombreColumna, const char *nombreNuevaCo
             }
         }
     }
+ 
 
-    printf("Columna %s creada con exito.\n", nombreNuevaColumna);
+    establecer_color(VERDE);
+    printf("Columna %s creada con éxito.\n", nombreNuevaColumna);
 }
+
 
 void list(Lista *lista, Dataframe *df)
 {
@@ -1609,4 +1616,181 @@ void setActiveDataFrame(Lista *lista, const char *nombre, Dataframe **activo)
         establecer_color(ROJO);
         printf("Error: El DataFrame %s no existe.\n", nombre);
     }
+}
+
+void calcularMedia(Dataframe *df, const char *nombre_columna)
+{
+    if (df == NULL)
+    {
+        establecer_color(ROJO);
+        printf("Error: No hay un DataFrame activo.\n");
+        return;
+    }
+
+    int columna = -1;
+
+    // Buscar la columna por nombre
+    for (int i = 0; i < df->numColumnas; i++)
+    {
+        if (strcmp(df->columnas[i].nombre, nombre_columna) == 0)
+        {
+            columna = i;
+            break;
+        }
+    }
+
+    if (columna == -1)
+    {
+        establecer_color(ROJO);
+        printf("Error: La columna '%s' no existe\n", nombre_columna);
+        return;
+    }
+
+    // Verificar que la columna sea numérica
+    if (df->columnas[columna].tipo != NUMERICO)
+    {
+        establecer_color(ROJO);
+        printf("Error: La columna '%s' no es de tipo numérico.\n", nombre_columna);
+        return;
+    }
+
+    double suma = 0.0;
+    int count = 0;
+
+    // Iterar por las filas para calcular la suma de valores no nulos
+    for (int i = 0; i < df->numFilas; i++)
+    {
+        if (df->columnas[columna].esNulo[i] == 1)
+        {
+            continue; // Ignorar valores nulos
+        }
+
+        char *dato = ((char **)df->columnas[columna].datos)[i];
+        double valor = atof(dato); // Convertir el dato a double
+        suma += valor;
+        count++;
+    }
+
+    if (count == 0)
+    {
+        establecer_color(ROJO);
+        printf("Advertencia: Todos los valores en la columna '%s' son nulos.\n", nombre_columna);
+        return;
+    }
+
+    double media = suma / count;
+
+    // Imprimir el resultado
+    printf("La columna '%s' tiene una media de: %.2f.\n", nombre_columna, media);
+}
+
+void renombrarColumna(Dataframe *df, const char *nombreActual, const char *nuevoNombre)
+{
+    if (df == NULL)
+    {
+        establecer_color(ROJO);
+        printf("Error: No hay un DataFrame activo.\n");
+        return;
+    }
+
+    
+    if (nombreActual == NULL || nuevoNombre == NULL)
+    {
+        establecer_color(ROJO);
+        printf("Error: Se deben proporcionar ambos nombres.\n");
+        return;
+    }
+
+    // Buscar la columna por su nombre actual
+    int columnaEncontrada = -1;
+    for (int i = 0; i < df->numColumnas; i++)
+    {
+        if (strcmp(df->columnas[i].nombre, nombreActual) == 0)
+        {
+            columnaEncontrada = i;
+            break;
+        }
+    }
+
+    if (columnaEncontrada == -1)
+    {
+        establecer_color(ROJO);
+        printf("Error: La columna '%s' no existe.\n", nombreActual);
+        return;
+    }
+
+    // Renombrar la columna
+    strncpy(df->columnas[columnaEncontrada].nombre, nuevoNombre, sizeof(df->columnas[columnaEncontrada].nombre) - 1);
+    df->columnas[columnaEncontrada].nombre[sizeof(df->columnas[columnaEncontrada].nombre) - 1] = '\0'; // Asegurar el nulo final
+
+    establecer_color(VERDE);
+    printf("La columna '%s' ha sido renombrada a '%s'.\n", nombreActual, nuevoNombre);
+}
+
+void eliminarDataframe2(Lista *lista, const char *nombre)
+{
+    if (lista == NULL || lista->primero == NULL)
+    {
+        printf("\033[31mError: No hay DataFrames en la lista.\033[0m\n");
+        return;
+    }
+
+    Nodo *actual = lista->primero;
+    Nodo *anterior = NULL;
+
+    while (actual != NULL)
+    {
+        if (strcmp(actual->df->nombre, nombre) == 0)
+        {
+            // Liberar memoria del DataFrame
+            Dataframe *df = actual->df;
+
+            for (int i = 0; i < df->numColumnas; i++)
+            {
+                // Liberar cada celda de datos de la columna
+                for (int j = 0; j < df->numFilas; j++)
+                {
+                    free(((char **)df->columnas[i].datos)[j]);
+                }
+
+                // Liberar los arrays de datos y nulos de la columna
+                free(df->columnas[i].datos);
+                free(df->columnas[i].esNulo);
+            }
+
+            // Liberar el array de columnas y el índice del DataFrame
+            free(df->columnas);
+            free(df->indice);
+
+            // Liberar la estructura del DataFrame
+            free(df);
+
+            // Eliminar el nodo de la lista
+            if (anterior == NULL)
+            {
+                // Es el primer nodo
+                lista->primero = actual->siguiente;
+            }
+            else
+            {
+                // Nodo intermedio o final
+                anterior->siguiente = actual->siguiente;
+            }
+
+            // Liberar el nodo de la lista
+            free(actual);
+
+            // Decrementar el número de DataFrames
+            lista->numDFs--;
+
+            printf("\033[32mDataFrame '%s' eliminado con éxito.\033[0m\n", nombre);
+            return;
+        }
+
+        anterior = actual;
+        actual = actual->siguiente;
+    }
+
+    // Si no se encontró el DataFrame
+    printf("\033[31mError: No se encontró un DataFrame con el nombre '%s'.\033[0m\n", nombre);
 }
